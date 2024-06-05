@@ -152,6 +152,13 @@ class CasterTest extends TestCase
     {
         $caster = new Caster();
         $this->expectException(MathException::class);
-        $this->assertSame($caster->cast('decimal:5', '1.234abc'), '1.23400');
+        $caster->cast('decimal:5', '1.234abc');
+    }
+
+    public function testEnumExceptions()
+    {
+        $caster = new Caster();
+        $this->expectException(\UnexpectedValueException::class);
+        $caster->cast(StatusEnum::class, '999');
     }
 }

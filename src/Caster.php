@@ -15,6 +15,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Exceptions\MathException;
 use InvalidArgumentException;
 use Mellivora\Http\Api\Contracts\Castable;
+use UnexpectedValueException;
 
 class Caster
 {
@@ -385,8 +386,12 @@ class Caster
             return null;
         }
 
-        return is_subclass_of($enumClass, BackedEnum::class)
-            ? $enumClass::from($value)
-            : constant($enumClass.'::'.$value);
+        foreach ($enumClass::cases() as $case) {
+            if ($case->value == $value || $case->name === $value) {
+                return $case;
+            }
+        }
+
+        throw new UnexpectedValueException('Invalid value of enum case '.$enumClass.' for value '.$value);
     }
 }
