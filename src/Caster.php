@@ -386,6 +386,10 @@ class Caster
             return null;
         }
 
+        if ($value instanceof $enumClass) {
+            return $value;
+        }
+
         foreach ($enumClass::cases() as $case) {
             if ($case->value == $value || $case->name === $value) {
                 return $case;

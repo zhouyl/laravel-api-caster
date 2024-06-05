@@ -186,7 +186,7 @@ class EntityTest extends TestCase
     public function testMappingEntity(): void
     {
         $data = [
-            'brand' => ['id' => 1, 'name' => 'foo'],
+            'brand' => ['id' => 1, 'name' => 'foo'], 'attribute' => [],
         ];
 
         $entity = new class($data) extends Entity {
@@ -196,6 +196,7 @@ class EntityTest extends TestCase
         };
 
         $this->assertInstanceOf(Entity::class, $entity->brand);
+        $this->assertNull($entity->attribute);
         $entity = new class($data) extends Entity {
             protected array $mappings = [
                 'brand' => Entity::class,
@@ -204,7 +205,7 @@ class EntityTest extends TestCase
 
         $this->assertInstanceOf(Entity::class, $entity->brand);
 
-        $data   = ['brands' => [$data]];
+        $data   = ['brands' => [$data], 'products' => [[]]];
         $entity = new class($data) extends Entity {
             protected array $mappings = [
                 '*[]' => Entity::class,
@@ -213,6 +214,8 @@ class EntityTest extends TestCase
 
         $this->assertInstanceOf(Collection::class, $entity->brands);
         $this->assertInstanceOf(Entity::class, $entity->brands->first());
+        $this->assertInstanceOf(Collection::class, $entity->products);
+        $this->assertNull($entity->products->first());
 
         $entity = new class($data) extends Entity {
             protected array $mappings = [

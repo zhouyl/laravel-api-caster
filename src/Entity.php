@@ -170,6 +170,10 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
         $collection = new Collection();
 
         foreach ($items as $item) {
+            if (empty($item)) {
+                continue;
+            }
+
             if (is_array($item)) {
                 $item = new static($item, $meta);
             }
@@ -663,10 +667,14 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      * @param string   $class
      * @param iterable $attributes
      *
-     * @return self
+     * @return Entity
      */
-    protected function mappingEntity(string $class, iterable $attributes): self
+    protected function mappingEntity(string $class, iterable $attributes): ?self
     {
+        if (empty($attributes)) {
+            return null;
+        }
+
         if (!is_a($class, self::class, true)) {
             throw new UnexpectedValueException("Mapping class '$class' must instance of ".self::class);
         }
@@ -716,11 +724,9 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
                 $isArray = true;
             }
 
-            if (isset($attributes[$key])) {
-                $attributes[$key] = $isArray
-                    ? $this->mappingCollection($class, $attributes[$key])
-                    : $this->mappingEntity($class, $attributes[$key]);
-            }
+            $attributes[$key] = $isArray
+                ? $this->mappingCollection($class, $attributes[$key] ?? [])
+                : $this->mappingEntity($class, $attributes[$key] ?? []);
         }
 
         return $attributes;
