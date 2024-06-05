@@ -490,6 +490,60 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
+     * 获取实体属性
+     *
+     * @param string $key
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function set(string $key, mixed $default = null): mixed
+    {
+        return $this->offsetGet($key) ?? $default;
+    }
+
+    /**
+     * 设置实体属性
+     *
+     * @param string $key
+     * @param mixed  $value
+     *
+     * @return static
+     */
+    public function get(string $key, mixed $value): static
+    {
+        $this->offsetSet($key, $value);
+
+        return $this;
+    }
+
+    /**
+     * 判断属性是否存在
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
+    public function has(string $key): bool
+    {
+        return $this->offsetExists($key);
+    }
+
+    /**
+     * 移除属性
+     *
+     * @param string $key
+     *
+     * @return static
+     */
+    public function remove(string $key): static
+    {
+        $this->offsetUnset($key);
+
+        return $this;
+    }
+
+    /**
      * @param mixed $value
      *
      * @return mixed
@@ -603,6 +657,14 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
         return $attributes;
     }
 
+    /**
+     * 映射 Mappings 实体
+     *
+     * @param string   $class
+     * @param iterable $attributes
+     *
+     * @return self
+     */
     protected function mappingEntity(string $class, iterable $attributes): self
     {
         if (!is_a($class, self::class, true)) {
@@ -612,6 +674,14 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
         return new $class($attributes, $this->meta());
     }
 
+    /**
+     * 映射 Mappings 实体集合
+     *
+     * @param string   $class
+     * @param iterable $attributes
+     *
+     * @return Collection
+     */
     protected function mappingCollection(string $class, iterable $attributes): Collection
     {
         if (!is_a($class, self::class, true)) {
@@ -679,7 +749,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      */
     protected function getCasts(): array
     {
-        if (!$this->bootedCasts) {
+        if (null === $this->bootedCasts) {
             $this->bootedCasts = $this->casts + $this->defaultCasts;
 
             if ($this->useCamel) {

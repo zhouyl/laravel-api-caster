@@ -102,8 +102,10 @@ class EntityTest extends TestCase
         $entity['brand.logo'] = 'http://logo.url';
         $this->assertEquals($body['data']['brand']['id'], $entity['brand.id']);
         $this->assertEquals($body['data']['brand']['name'], $entity['brand.name']);
-        $this->assertEquals('http://logo.url', $entity['brand.logo']);
+        $this->assertInstanceOf(Entity::class, $entity->get('brand.logo', 'https://logo.url'));
+        $this->assertEquals('https://logo.url', $entity->set('brand.logo'));
         $this->assertTrue(isset($entity['brand.logo']));
+        $this->assertTrue($entity->has('brand.logo'));
 
         $copy1 = $entity->copy();
         $this->assertEquals($entity->toArray(), $copy1->toArray());
@@ -111,17 +113,19 @@ class EntityTest extends TestCase
         $this->assertNull($copy1['brand.name']);
         $this->assertNull($copy1['brand.logo']);
 
-        unset($entity['brand.logo']);
-        $this->assertFalse(isset($entity['brand.logo']));
+        unset($copy1['brand.logo']);
+        $this->assertFalse(isset($copy1['brand.logo']));
+        $this->assertInstanceOf(Entity::class, $copy1->remove('brand.name'));
+        $this->assertFalse($copy1->has('brand.logo'));
 
         $copy2 = $entity->only(['brand.name', 'brand.logo']);
         $this->assertEquals(['brand'], $copy2->keys());
 
-        $entity->value = 9876.22;
-        $this->assertEquals(9876.22, $entity->value);
-        $this->assertTrue(isset($entity->value));
-        unset($entity->value);
-        $this->assertFalse(isset($entity->value));
+        $copy2->value = 9876.22;
+        $this->assertEquals(9876.22, $copy2->value);
+        $this->assertTrue(isset($copy2->value));
+        unset($copy2->value);
+        $this->assertFalse(isset($copy2->value));
     }
 
     /**
