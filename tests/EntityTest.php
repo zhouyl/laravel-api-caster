@@ -102,8 +102,8 @@ class EntityTest extends TestCase
         $entity['brand.logo'] = 'http://logo.url';
         $this->assertEquals($body['data']['brand']['id'], $entity['brand.id']);
         $this->assertEquals($body['data']['brand']['name'], $entity['brand.name']);
-        $this->assertInstanceOf(Entity::class, $entity->get('brand.logo', 'https://logo.url'));
-        $this->assertEquals('https://logo.url', $entity->set('brand.logo'));
+        $this->assertInstanceOf(Entity::class, $entity->set('brand.logo', 'https://logo.url'));
+        $this->assertEquals('https://logo.url', $entity->get('brand.logo'));
         $this->assertTrue(isset($entity['brand.logo']));
         $this->assertTrue($entity->has('brand.logo'));
 

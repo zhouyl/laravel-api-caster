@@ -497,7 +497,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      *
      * @return mixed
      */
-    public function set(string $key, mixed $default = null): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
         return $this->offsetGet($key) ?? $default;
     }
@@ -510,7 +510,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      *
      * @return static
      */
-    public function get(string $key, mixed $value): static
+    public function set(string $key, mixed $value): static
     {
         $this->offsetSet($key, $value);
 
