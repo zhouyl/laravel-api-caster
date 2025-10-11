@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
 use InvalidArgumentException;
 use IteratorAggregate;
 use JsonSerializable;
+use ReflectionException;
 use Serializable;
 use Traversable;
 use UnexpectedValueException;
@@ -29,9 +30,6 @@ use UnexpectedValueException;
  *
  * @template TKey of array-key
  * @template TValue
- *
- * @psalm-consistent-constructor
- * @psalm-consistent-templates
  */
 class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Jsonable, JsonSerializable, Serializable
 {
@@ -352,7 +350,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      */
     public function meta(string $key = null, mixed $default = null): mixed
     {
-        return $key ? data_get($this->meta, $key, $default) : $this->meta;
+        return null !== $key ? data_get($this->meta, $key, $default) : $this->meta;
     }
 
     /**
@@ -365,7 +363,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      */
     public function origin(string $key = null, mixed $default = null): mixed
     {
-        return $key ? data_get($this->originAttributes, $key, $default) : $this->originAttributes;
+        return null !== $key ? data_get($this->originAttributes, $key, $default) : $this->originAttributes;
     }
 
     /**
@@ -375,7 +373,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      */
     public function isEmpty(): bool
     {
-        return empty($this->attributes);
+        return [] === $this->attributes;
     }
 
     /**
@@ -654,13 +652,9 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
         // @codeCoverageIgnoreEnd
 
         if (is_iterable($value)) {
-            $values = [];
-
-            foreach ($value as $key => $item) {
-                $values[$key] = $this->getEntityValue($item);
-            }
-
-            return $values;
+            return array_map(function ($item) {
+                return $this->getEntityValue($item);
+            }, $value);
         }
 
         return $value;
@@ -692,7 +686,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
         }
 
         if ($items instanceof Jsonable) {
-            return json_decode($items->toJson(), true) ?: [];
+            return json_decode($items->toJson(), true) ?? [];
         }
 
         if ($items instanceof JsonSerializable) {
@@ -704,7 +698,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
         }
 
         if (method_exists($items, 'toJson')) {
-            return json_decode($items->toJson(), true) ?: [];
+            return json_decode($items->toJson(), true) ?? [];
         }
 
         if ($items instanceof ArrayObject) {
@@ -753,6 +747,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      * @param array $attributes
      *
      * @return array
+     * @throws ReflectionException
      */
     protected function bootCasts(array $attributes): array
     {
@@ -913,8 +908,8 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     protected function canInclude(string $key): bool
     {
         if (!isset($this->includeCache[$key])) {
-            $this->includeCache[$key] = (in_array('*', $this->includes) || in_array($key, $this->includes))
-                && !in_array($key, $this->excludes);
+            $this->includeCache[$key] = (in_array('*', $this->includes, true) || in_array($key, $this->includes, true))
+                && !in_array($key, $this->excludes, true);
         }
 
         return $this->includeCache[$key];

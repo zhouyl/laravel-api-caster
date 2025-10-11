@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Mellivora\Http\Api;
 
 use ArrayAccess;
+use Carbon\Carbon;
+use DateTimeInterface;
 use Illuminate\Http\Client\Response as HttpResponse;
 use LogicException;
 use Psr\Http\Message\MessageInterface;
@@ -110,7 +112,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     {
         $meta = $this->offsetGet('meta') ?? [];
 
-        return $key ? data_get($meta, $key, $default) : $meta;
+        return null !== $key ? data_get($meta, $key, $default) : $meta;
     }
 
     /**
@@ -122,7 +124,37 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     {
         $data = $this->offsetGet('data') ?? [];
 
-        return $key ? data_get($data, $key, $default) : $data;
+        return null !== $key ? data_get($data, $key, $default) : $data;
+    }
+
+    /**
+     * Get the timestamp from meta data.
+     *
+     * Attempts to parse the timestamp from the response meta data.
+     * Supports numeric timestamps, string dates, and DateTimeInterface objects.
+     *
+     * @return DateTimeInterface|null The parsed timestamp or null if not found/parseable
+     *
+     * @example
+     * $response->timestamp(); // Returns Carbon instance or null
+     */
+    public function timestamp(): ?DateTimeInterface
+    {
+        $timestamp = $this->meta('timestamp');
+
+        if (is_numeric($timestamp)) {
+            return Carbon::createFromTimestamp($timestamp);
+        }
+
+        if (is_string($timestamp)) {
+            return Carbon::parse($timestamp);
+        }
+
+        if ($timestamp instanceof DateTimeInterface) {
+            return $timestamp;
+        }
+
+        return null;
     }
 
     /**

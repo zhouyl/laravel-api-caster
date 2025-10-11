@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Mellivora\Http\Api\Tests;
 
+use Carbon\Carbon;
+use DateTimeInterface;
 use GuzzleHttp\Psr7\Response as PsrResponse;
 use Illuminate\Http\Client\Response as HttpResponse;
 use LogicException;
@@ -90,5 +92,80 @@ class ResponseTest extends TestCase
     {
         $this->expectException(LogicException::class);
         unset($this->response['code']);
+    }
+
+    public function testTimestampWithNumericValue()
+    {
+        $timestamp = time();
+        $psrResponse = new PsrResponse(200, [], json_encode([
+            'code'    => 200,
+            'message' => 'OK',
+            'data'    => [],
+            'meta'    => ['timestamp' => $timestamp],
+        ]));
+        $response = new Response(new HttpResponse($psrResponse));
+
+        $result = $response->timestamp();
+        $this->assertInstanceOf(DateTimeInterface::class, $result);
+        $this->assertEquals($timestamp, $result->getTimestamp());
+    }
+
+    public function testTimestampWithStringValue()
+    {
+        $dateString = '2023-01-01 12:00:00';
+        $psrResponse = new PsrResponse(200, [], json_encode([
+            'code'    => 200,
+            'message' => 'OK',
+            'data'    => [],
+            'meta'    => ['timestamp' => $dateString],
+        ]));
+        $response = new Response(new HttpResponse($psrResponse));
+
+        $result = $response->timestamp();
+        $this->assertInstanceOf(DateTimeInterface::class, $result);
+        $this->assertEquals($dateString, $result->format('Y-m-d H:i:s'));
+    }
+
+    public function testTimestampWithDateTimeInterface()
+    {
+        $carbon = Carbon::now();
+        $psrResponse = new PsrResponse(200, [], json_encode([
+            'code'    => 200,
+            'message' => 'OK',
+            'data'    => [],
+            'meta'    => ['timestamp' => $carbon->toISOString()],
+        ]));
+        $response = new Response(new HttpResponse($psrResponse));
+
+        $result = $response->timestamp();
+        $this->assertInstanceOf(DateTimeInterface::class, $result);
+    }
+
+    public function testTimestampWithNullValue()
+    {
+        $psrResponse = new PsrResponse(200, [], json_encode([
+            'code'    => 200,
+            'message' => 'OK',
+            'data'    => [],
+            'meta'    => [],
+        ]));
+        $response = new Response(new HttpResponse($psrResponse));
+
+        $result = $response->timestamp();
+        $this->assertNull($result);
+    }
+
+    public function testTimestampWithInvalidValue()
+    {
+        $psrResponse = new PsrResponse(200, [], json_encode([
+            'code'    => 200,
+            'message' => 'OK',
+            'data'    => [],
+            'meta'    => ['timestamp' => ['invalid' => 'value']],
+        ]));
+        $response = new Response(new HttpResponse($psrResponse));
+
+        $result = $response->timestamp();
+        $this->assertNull($result);
     }
 }

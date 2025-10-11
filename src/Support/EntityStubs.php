@@ -11,11 +11,10 @@ use Mellivora\Http\Api\Response;
 
 /**
  * IDE support stubs for Entity class.
- * 
+ *
  * This file provides enhanced IDE support with type hints and method signatures
  * for better auto-completion and static analysis.
- * 
- * @package Mellivora\Http\Api\Support
+ *
  * @internal This class is for IDE support only and should not be used directly
  */
 abstract class EntityStubs
@@ -26,7 +25,9 @@ abstract class EntityStubs
      * @param iterable<string, mixed> $attributes
      * @param array<string, mixed> $meta
      */
-    public function __construct(iterable $attributes = [], array $meta = []) {}
+    public function __construct(iterable $attributes = [], array $meta = [])
+    {
+    }
 
     /**
      * Create entity from Response.
@@ -34,7 +35,9 @@ abstract class EntityStubs
      * @param Response $response
      * @return static
      */
-    public static function from(Response $response): static {}
+    public static function from(Response $response): static
+    {
+    }
 
     /**
      * Create collection of entities.
@@ -43,7 +46,9 @@ abstract class EntityStubs
      * @param array<string, mixed> $meta
      * @return Collection<int, static>
      */
-    public static function collection(iterable $items, array $meta = []): Collection {}
+    public static function collection(iterable $items, array $meta = []): Collection
+    {
+    }
 
     /**
      * Create collection from Response.
@@ -51,7 +56,9 @@ abstract class EntityStubs
      * @param Response $response
      * @return Collection<int, static>
      */
-    public static function collectionResponse(Response $response): Collection {}
+    public static function collectionResponse(Response $response): Collection
+    {
+    }
 
     /**
      * Get attribute value.
@@ -60,7 +67,9 @@ abstract class EntityStubs
      * @param mixed $default
      * @return mixed
      */
-    public function getAttribute(string $key, mixed $default = null): mixed {}
+    public function getAttribute(string $key, mixed $default = null): mixed
+    {
+    }
 
     /**
      * Set attribute value.
@@ -69,7 +78,9 @@ abstract class EntityStubs
      * @param mixed $value
      * @return static
      */
-    public function setAttribute(string $key, mixed $value): static {}
+    public function setAttribute(string $key, mixed $value): static
+    {
+    }
 
     /**
      * Check if attribute exists.
@@ -77,7 +88,9 @@ abstract class EntityStubs
      * @param string $key
      * @return bool
      */
-    public function hasAttribute(string $key): bool {}
+    public function hasAttribute(string $key): bool
+    {
+    }
 
     /**
      * Get meta information.
@@ -86,7 +99,9 @@ abstract class EntityStubs
      * @param mixed $default
      * @return mixed
      */
-    public function meta(?string $key = null, mixed $default = null): mixed {}
+    public function meta(?string $key = null, mixed $default = null): mixed
+    {
+    }
 
     /**
      * Get original data.
@@ -95,14 +110,18 @@ abstract class EntityStubs
      * @param mixed $default
      * @return mixed
      */
-    public function origin(?string $key = null, mixed $default = null): mixed {}
+    public function origin(?string $key = null, mixed $default = null): mixed
+    {
+    }
 
     /**
      * Convert to array.
      *
      * @return array<string, mixed>
      */
-    public function toArray(): array {}
+    public function toArray(): array
+    {
+    }
 
     /**
      * Convert to JSON.
@@ -110,48 +129,59 @@ abstract class EntityStubs
      * @param int $options
      * @return string
      */
-    public function toJson(int $options = 0): string {}
+    public function toJson(int $options = 0): string
+    {
+    }
 
     /**
      * Get all keys.
      *
      * @return array<string>
      */
-    public function keys(): array {}
+    public function keys(): array
+    {
+    }
 
     /**
      * Get all values.
      *
      * @return array<mixed>
      */
-    public function values(): array {}
+    public function values(): array
+    {
+    }
 
     /**
      * Check if empty.
      *
      * @return bool
      */
-    public function isEmpty(): bool {}
+    public function isEmpty(): bool
+    {
+    }
 
     /**
      * Create a copy.
      *
      * @return static
      */
-    public function copy(): static {}
+    public function copy(): static
+    {
+    }
 
     /**
      * Count attributes.
      *
      * @return int
      */
-    public function count(): int {}
+    public function count(): int
+    {
+    }
 }
 
 /**
  * Common entity attribute types for IDE support.
- * 
- * @package Mellivora\Http\Api\Support
+ *
  * @internal This class is for IDE support only
  */
 abstract class CommonEntityTypes
@@ -189,8 +219,7 @@ abstract class CommonEntityTypes
 
 /**
  * Cast type definitions for IDE support.
- * 
- * @package Mellivora\Http\Api\Support
+ *
  * @internal This class is for IDE support only
  */
 abstract class CastTypes
@@ -210,21 +239,20 @@ abstract class CastTypes
     public const DATE = 'date';
     public const DATETIME = 'datetime';
     public const TIMESTAMP = 'timestamp';
-    
+
     /** @var string Decimal with 2 places */
     public const DECIMAL_2 = 'decimal:2';
-    
+
     /** @var string Custom date format */
     public const DATE_CUSTOM = 'date:Y-m-d';
-    
+
     /** @var string Custom datetime format */
     public const DATETIME_CUSTOM = 'datetime:Y-m-d H:i:s';
 }
 
 /**
  * Response structure types for IDE support.
- * 
- * @package Mellivora\Http\Api\Support
+ *
  * @internal This class is for IDE support only
  */
 abstract class ResponseTypes

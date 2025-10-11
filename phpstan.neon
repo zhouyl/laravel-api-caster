@@ -4,7 +4,14 @@ parameters:
         - src
     excludePaths:
         - src/Support/EntityStubs.php
+    treatPhpDocTypesAsCertain: false
     ignoreErrors:
+        # ArrayAccess interface compatibility
+        - '#Parameter \#1 \$offset \(string\) of method .* should be contravariant with parameter \$offset \(mixed\) of method ArrayAccess.*#'
+        # Variable method calls are acceptable in this context
+        - '#Variable method call on \$this.*#'
+        # is_a checks with class-string are always true by design
+        - '#Call to function is_a\(\) with arguments .* will always evaluate to true#'
         - '#Call to an undefined method [a-zA-Z0-9\\_]+::toArray\(\)#'
         - '#Call to an undefined method [a-zA-Z0-9\\_]+::toJson\(\)#'
         - '#Access to an undefined property [a-zA-Z0-9\\_]+::\$[a-zA-Z0-9_]+#'

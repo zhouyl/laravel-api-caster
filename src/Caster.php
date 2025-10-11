@@ -17,6 +17,8 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Exceptions\MathException;
 use InvalidArgumentException;
 use Mellivora\Http\Api\Contracts\Castable;
+use ReflectionEnum;
+use ReflectionException;
 
 /**
  * Data type converter for Entity attributes.
@@ -40,7 +42,7 @@ class Caster
     /**
      * Default datetime format for datetime casting.
      *
-     * This format is used when casting values to datetimes without
+     * This format is used when casting values to datetime without
      * a specific format specified.
      *
      * @var string
@@ -85,7 +87,9 @@ class Caster
     protected array $attributes;
 
     /**
-     * @param Entity|null $entity
+     * Create a new Caster instance.
+     *
+     * @param Entity|null $entity The entity instance to associate with this caster
      */
     public function __construct(?Entity $entity = null)
     {
@@ -103,8 +107,8 @@ class Caster
      *
      * @return mixed The casted value
      *
-     * @throws \InvalidArgumentException When cast type is invalid
-     * @throws \Illuminate\Support\Exceptions\MathException When decimal casting fails
+     * @throws InvalidArgumentException When cast type is invalid
+     * @throws MathException|ReflectionException When decimal casting fails
      *
      * @example
      * $caster->cast('int', '123'); // returns 123
@@ -177,8 +181,8 @@ class Caster
      *
      * @return mixed The casted value
      *
-     * @throws \Illuminate\Support\Exceptions\MathException When decimal casting fails
-     * @throws \InvalidArgumentException When JSON parsing fails
+     * @throws MathException When decimal casting fails
+     * @throws InvalidArgumentException When JSON parsing fails
      *
      * @internal This method is used internally by the cast() method
      */
@@ -243,8 +247,9 @@ class Caster
      *
      * @param mixed $value The value to convert to decimal
      * @param int|string $decimals Number of decimal places
+     *
      * @return string The decimal string representation
-     * @throws \Illuminate\Support\Exceptions\MathException When conversion fails
+     * @throws MathException When conversion fails
      */
     protected function asDecimal(mixed $value, int|string $decimals): string
     {
@@ -273,8 +278,9 @@ class Caster
      * timestamps, and formatted date strings.
      *
      * @param mixed $value The value to convert to datetime
+     *
      * @return Carbon The Carbon datetime instance
-     * @throws \InvalidArgumentException When the value cannot be parsed as a date
+     * @throws InvalidArgumentException When the value cannot be parsed as a date
      */
     protected function asDateTime(mixed $value): Carbon
     {
@@ -299,7 +305,7 @@ class Caster
             $date = false;
         }
 
-        return $date ?: Carbon::parse($value);
+        return false !== $date ? $date : Carbon::parse($value);
     }
 
     /**
@@ -310,9 +316,9 @@ class Caster
      */
     protected function serializeDate(DateTimeInterface $date): string
     {
-        return $date instanceof DateTimeImmutable ?
-            CarbonImmutable::instance($date)->format(static::$dateFormat) :
-            Carbon::instance($date)->format(static::$dateFormat);
+        return $date instanceof DateTimeImmutable
+            ? CarbonImmutable::instance($date)->format(static::$dateFormat)
+            : Carbon::instance($date)->format(static::$dateFormat);
     }
 
     /**
@@ -323,9 +329,9 @@ class Caster
      */
     protected function serializeDatetime(DateTimeInterface $date): string
     {
-        return $date instanceof DateTimeImmutable ?
-            CarbonImmutable::instance($date)->format(static::$datetimeFormat) :
-            Carbon::instance($date)->format(static::$datetimeFormat);
+        return $date instanceof DateTimeImmutable
+            ? CarbonImmutable::instance($date)->format(static::$datetimeFormat)
+            : Carbon::instance($date)->format(static::$datetimeFormat);
     }
 
     /**
@@ -339,6 +345,14 @@ class Caster
         return $this->asDateTime($value)->getTimestamp();
     }
 
+    /**
+     * Get the base cast type from a cast definition.
+     *
+     * Extracts the base type from cast definitions that may include parameters.
+     *
+     * @param string $cast The cast definition
+     * @return string The base cast type
+     */
     protected function getCastType(string $cast): string
     {
         if ($this->isCustomDateTimeCast($cast)) {
@@ -360,26 +374,56 @@ class Caster
         return trim(strtolower($cast));
     }
 
+    /**
+     * Check if cast type is for date conversion.
+     *
+     * @param string $cast The cast type to check
+     * @return bool True if it's a date cast
+     */
     protected function isDateCast(string $cast): bool
     {
-        return in_array($cast, ['date', 'immutable_date']);
+        return in_array($cast, ['date', 'immutable_date'], true);
     }
 
+    /**
+     * Check if cast type is for datetime conversion.
+     *
+     * @param string $cast The cast type to check
+     * @return bool True if it's a datetime cast
+     */
     protected function isDatetimeCast(string $cast): bool
     {
-        return in_array($cast, ['date', 'datetime', 'immutable_date', 'immutable_datetime']);
+        return in_array($cast, ['date', 'datetime', 'immutable_date', 'immutable_datetime'], true);
     }
 
+    /**
+     * Check if cast type is for custom datetime format.
+     *
+     * @param string $cast The cast type to check
+     * @return bool True if it's a custom datetime cast
+     */
     protected function isCustomDateTimeCast(string $cast): bool
     {
         return str_starts_with($cast, 'date:') || str_starts_with($cast, 'datetime:');
     }
 
+    /**
+     * Check if cast type is for immutable custom datetime format.
+     *
+     * @param string $cast The cast type to check
+     * @return bool True if it's an immutable custom datetime cast
+     */
     protected function isImmutableCustomDateTimeCast(string $cast): bool
     {
         return str_starts_with($cast, 'immutable_date:') || str_starts_with($cast, 'immutable_datetime:');
     }
 
+    /**
+     * Check if cast type is for decimal conversion.
+     *
+     * @param string $cast The cast type to check
+     * @return bool True if it's a decimal cast
+     */
     protected function isDecimalCast(string $cast): bool
     {
         return str_starts_with($cast, 'decimal:');
@@ -393,19 +437,33 @@ class Caster
      */
     protected function isStandardDateFormat(mixed $value): bool
     {
-        return is_string($value) && (bool) preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $value);
+        return is_string($value) && preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $value);
     }
 
+    /**
+     * Parse the class name from a caster definition.
+     *
+     * Extracts the class name from cast definitions that may include parameters.
+     *
+     * @param string $class The caster class definition
+     * @return string The class name
+     */
     protected function parseCasterClass(string $class): string
     {
         return !str_contains($class, ':') ? $class : explode(':', $class, 2)[0];
     }
 
+    /**
+     * Check if cast type uses a custom caster class.
+     *
+     * @param string $cast The cast type to check
+     * @return bool True if it's a class-based cast
+     */
     protected function isClassCastable(string $cast): bool
     {
         $castType = $this->parseCasterClass($cast);
 
-        if (in_array($castType, static::$primitiveCastTypes)) {
+        if (in_array($castType, static::$primitiveCastTypes, true)) {
             return false;
         }
 
@@ -428,7 +486,7 @@ class Caster
 
         $arguments = [];
 
-        if (is_string($castType) && str_contains($castType, ':')) {
+        if (str_contains($castType, ':')) {
             $segments = explode(':', $castType, 2);
 
             $castType = $segments[0];
@@ -485,11 +543,17 @@ class Caster
         return $this->resolveCasterClass($cast)->fromCastValue($this->entity, $cast, $value);
     }
 
+    /**
+     * Check if cast type is for enum conversion.
+     *
+     * @param string $cast The cast type to check
+     * @return bool True if it's an enum cast
+     */
     protected function isEnumCastable(string $cast): bool
     {
         $castType = $this->getCastType($cast);
 
-        if (in_array($castType, static::$primitiveCastTypes)) {
+        if (in_array($castType, static::$primitiveCastTypes, true)) {
             return false;
         }
 
@@ -517,8 +581,10 @@ class Caster
      * Get enum case from class and value.
      *
      * @param string $enumClass The enum class name
-     * @param mixed $value The value to convert to enum case
+     * @param mixed  $value     The value to convert to enum case
+     *
      * @return mixed The enum case
+     * @throws ReflectionException
      */
     protected function getEnumCase(string $enumClass, mixed $value): mixed
     {
@@ -528,12 +594,12 @@ class Caster
 
         if (is_subclass_of($enumClass, BackedEnum::class)) {
             // Try to cast the value to the appropriate type for backed enums
-            $reflection = new \ReflectionEnum($enumClass);
+            $reflection = new ReflectionEnum($enumClass);
             $backingType = $reflection->getBackingType();
 
-            if ($backingType && 'int' === $backingType->getName()) {
+            if (null !== $backingType && 'int' === $backingType->getName()) {
                 $value = (int) $value;
-            } elseif ($backingType && 'string' === $backingType->getName()) {
+            } elseif (null !== $backingType && 'string' === $backingType->getName()) {
                 $value = (string) $value;
             }
 

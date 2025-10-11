@@ -22,7 +22,7 @@ class DocumentationExamplesTest extends TestCase
     {
         // Example from Entity PHPDoc
         $entity = new Entity(['id' => 1, 'name' => 'John']);
-        
+
         $this->assertEquals(1, $entity->id);
         $this->assertEquals('John', $entity->name);
     }
@@ -34,17 +34,17 @@ class DocumentationExamplesTest extends TestCase
             200,
             ['Content-Type' => 'application/json'],
             json_encode([
-                'code' => 200,
+                'code'    => 200,
                 'message' => 'OK',
-                'data' => ['id' => 123, 'name' => 'John Doe'],
-                'meta' => ['version' => '1.0']
+                'data'    => ['id' => 123, 'name' => 'John Doe'],
+                'meta'    => ['version' => '1.0'],
             ])
         );
-        
+
         $httpResponse = new HttpResponse($psrResponse);
         $response = new Response($httpResponse);
         $user = Entity::from($response);
-        
+
         $this->assertEquals(123, $user->id);
         $this->assertEquals('John Doe', $user->name);
         $this->assertEquals('1.0', $user->meta('version'));
@@ -55,9 +55,9 @@ class DocumentationExamplesTest extends TestCase
         // Example from Entity::collection() PHPDoc
         $users = Entity::collection([
             ['id' => 1, 'name' => 'John'],
-            ['id' => 2, 'name' => 'Jane']
+            ['id' => 2, 'name' => 'Jane'],
         ]);
-        
+
         $this->assertInstanceOf(Collection::class, $users);
         $this->assertCount(2, $users);
         $this->assertEquals(1, $users->first()->id);
@@ -69,7 +69,7 @@ class DocumentationExamplesTest extends TestCase
     public function testCasterExamples(): void
     {
         $caster = new Caster();
-        
+
         // Examples from Caster::cast() PHPDoc
         $this->assertEquals(123, $caster->cast('int', '123'));
         $this->assertInstanceOf(Carbon::class, $caster->cast('datetime', '2023-01-01'));
@@ -79,14 +79,14 @@ class DocumentationExamplesTest extends TestCase
     public function testEntityWithCasts(): void
     {
         // Example from Entity casts property PHPDoc
-        $entity = new class(['id' => '123', 'status' => 1, 'created_at' => '2023-01-01 12:00:00']) extends Entity {
+        $entity = new class (['id' => '123', 'status' => 1, 'created_at' => '2023-01-01 12:00:00']) extends Entity {
             protected array $casts = [
-                'id' => 'int',
-                'status' => StatusEnum::class,
+                'id'         => 'int',
+                'status'     => StatusEnum::class,
                 'created_at' => 'datetime',
             ];
         };
-        
+
         $this->assertIsInt($entity->id);
         $this->assertEquals(123, $entity->id);
         $this->assertInstanceOf(StatusEnum::class, $entity->status);
@@ -97,23 +97,23 @@ class DocumentationExamplesTest extends TestCase
     public function testEntityWithMappings(): void
     {
         // Example from Entity mappings property PHPDoc
-        $entity = new class([
-            'user' => ['id' => 1, 'name' => 'John'],
+        $entity = new class ([
+            'user'       => ['id' => 1, 'name' => 'John'],
             'categories' => [
                 ['id' => 1, 'name' => 'Tech'],
-                ['id' => 2, 'name' => 'News']
-            ]
+                ['id' => 2, 'name' => 'News'],
+            ],
         ]) extends Entity {
             protected array $mappings = [
-                'user' => Entity::class,
+                'user'         => Entity::class,
                 'categories[]' => Entity::class,
             ];
         };
-        
+
         $this->assertInstanceOf(Entity::class, $entity->user);
         $this->assertEquals(1, $entity->user->id);
         $this->assertEquals('John', $entity->user->name);
-        
+
         $this->assertInstanceOf(Collection::class, $entity->categories);
         $this->assertCount(2, $entity->categories);
         $this->assertInstanceOf(Entity::class, $entity->categories->first());
@@ -123,7 +123,7 @@ class DocumentationExamplesTest extends TestCase
     public function testEntityWithAppends(): void
     {
         // Example from Entity appends property PHPDoc
-        $entity = new class(['first_name' => 'John', 'last_name' => 'Doe']) extends Entity {
+        $entity = new class (['first_name' => 'John', 'last_name' => 'Doe']) extends Entity {
             protected array $appends = ['fullName'];
 
             public function getFullNameAttribute(): string
@@ -139,10 +139,10 @@ class DocumentationExamplesTest extends TestCase
     public function testEntityWithIncludes(): void
     {
         // Example from Entity includes property PHPDoc
-        $entity = new class(['id' => 1, 'name' => 'John', 'email' => 'john@example.com', 'password' => 'secret']) extends Entity {
+        $entity = new class (['id' => 1, 'name' => 'John', 'email' => 'john@example.com', 'password' => 'secret']) extends Entity {
             protected array $includes = ['id', 'name', 'email'];
         };
-        
+
         $array = $entity->toArray();
         $this->assertArrayHasKey('id', $array);
         $this->assertArrayHasKey('name', $array);
@@ -153,7 +153,7 @@ class DocumentationExamplesTest extends TestCase
     public function testEntityWithExcludes(): void
     {
         // Example from Entity excludes property PHPDoc
-        $entity = new class(['id' => 1, 'name' => 'John', 'password' => 'secret', 'secret_key' => 'key123']) extends Entity {
+        $entity = new class (['id' => 1, 'name' => 'John', 'password' => 'secret', 'secret_key' => 'key123']) extends Entity {
             protected array $excludes = ['password', 'secretKey'];
         };
 
@@ -167,9 +167,9 @@ class DocumentationExamplesTest extends TestCase
     public function testEntityWithRenames(): void
     {
         // Example from Entity renames property PHPDoc
-        $entity = new class(['user_id' => 123, 'full_name' => 'John Doe']) extends Entity {
+        $entity = new class (['user_id' => 123, 'full_name' => 'John Doe']) extends Entity {
             protected array $renames = [
-                'userId' => 'id',      // renames work on camelCase keys
+                'userId'   => 'id',      // renames work on camelCase keys
                 'fullName' => 'name',
             ];
         };
@@ -190,16 +190,16 @@ class DocumentationExamplesTest extends TestCase
             200,
             ['Content-Type' => 'application/json'],
             json_encode([
-                'code' => 200,
+                'code'    => 200,
                 'message' => 'Success',
-                'data' => ['user' => ['id' => 1, 'name' => 'John']],
-                'meta' => ['total' => 100, 'page' => 1]
+                'data'    => ['user' => ['id' => 1, 'name' => 'John']],
+                'meta'    => ['total' => 100, 'page' => 1],
             ])
         );
-        
+
         $httpResponse = new HttpResponse($psrResponse);
         $response = new Response($httpResponse);
-        
+
         $this->assertEquals(200, $response->code());
         $this->assertEquals('Success', $response->message());
         $this->assertEquals(['user' => ['id' => 1, 'name' => 'John']], $response->data());
