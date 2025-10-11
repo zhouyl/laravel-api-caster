@@ -21,63 +21,63 @@ use Traversable;
 use UnexpectedValueException;
 
 /**
- * 数据实体对象基类.
+ * Base class for data entity objects.
  */
 class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Jsonable, JsonSerializable, Serializable
 {
     /**
-     * 原始数据.
+     * Original data.
      *
      * @var array
      */
     protected array $originAttributes = [];
 
     /**
-     * 转换后的数据.
+     * Converted data.
      *
      * @var array
      */
     protected array $attributes = [];
 
     /**
-     * 头信息.
+     * Meta information.
      *
      * @var array
      */
     protected array $meta = [];
 
     /**
-     * 默认数据.
+     * Default data.
      *
      * @var array
      */
     protected array $defaults = [];
 
     /**
-     * 需要保留的数据字段.
+     * Data fields to be retained.
      *
      * @var array|string[]
      */
     protected array $includes = ['*'];
 
     /**
-     * 需要排除的数据字段.
+     * Data fields to be excluded.
      *
      * @var array
      */
     protected array $excludes = [];
 
     /**
-     * 重命名字段.
+     * Field renaming mapping.
      *
      * @var array
      */
     protected array $renames = [];
 
     /**
-     * 需要进行类型转换的数据字段.
+     * Data fields that need type conversion.
      *
-     * 例：
+     * Example:
      *  [
      *      'status'   => StatusEnum::class,
      *      'log_time' => 'datetime',
@@ -88,9 +88,9 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     protected array $casts = [];
 
     /**
-     * 需要映射的数据字段.
+     * Data fields that need mapping.
      *
-     * 例：
+     * Example:
      *  [
      *      'manufacturer' => ManufacturerEntity::class,
      *      'categories[]' => CategoryEntity::class,
@@ -101,30 +101,30 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     protected array $mappings = [];
 
     /**
-     * 需要追加的数据字段.
+     * Data fields to be appended.
      *
-     *  例：['parents']，需要在 Entity 类中提供对应的 getParentsAttribute() 方法
+     * Example: ['parents'], requires corresponding getParentsAttribute() method in Entity class
      *
      * @var array
      */
     protected array $appends = [];
 
     /**
-     * 是否使用驼峰式字段命名.
+     * Whether to use camelCase field naming.
      *
      * @return bool
      */
     protected bool $useCamel = true;
 
     /**
-     * 默认数据转换器.
+     * Default data converter.
      *
      * @var Caster
      */
     protected Caster $caster;
 
     /**
-     * 默认的数据类型转换.
+     * Default data type conversions.
      *
      * @var array|string[]
      */
@@ -174,7 +174,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 将数据转换为 Collection[Entity] 结构.
+     * Convert data to Collection[Entity] structure.
      *
      * @param iterable $items
      * @param array    $meta
@@ -201,7 +201,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 构造方法，传入 Entity 实体的 array 数据.
+     * Constructor method, pass in Entity array data.
      *
      * @param iterable $attributes
      * @param array    $meta
@@ -282,7 +282,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 获取请求头信息.
+     * Get request header information.
      *
      * @param null|string $key
      * @param null|mixed  $default
@@ -295,7 +295,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 获取原始数据.
+     * Get original data.
      *
      * @param null|string $key
      * @param null|mixed  $default
@@ -308,7 +308,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 判断是否为空数据.
+     * Check if data is empty.
      *
      * @return bool
      */
@@ -340,7 +340,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 获取所有的主键.
+     * Get all keys.
      *
      * @return array
      */
@@ -350,7 +350,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 获取所有的值
+     * Get all values.
      *
      * @return array
      */
@@ -508,7 +508,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 获取实体属性.
+     * Get entity attribute.
      *
      * @param string $key
      * @param mixed  $default
@@ -521,7 +521,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 设置实体属性.
+     * Set entity attribute.
      *
      * @param string $key
      * @param mixed  $value
@@ -536,7 +536,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 判断属性是否存在.
+     * Check if attribute exists.
      *
      * @param string $key
      *
@@ -604,7 +604,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 将传入的数据转换为数组.
+     * Convert input data to array.
      *
      * @param mixed $items
      *
@@ -682,7 +682,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 合并 caster 转换数据.
+     * Merge caster converted data.
      *
      * @param array $attributes
      *
@@ -785,7 +785,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 获取所有的属性修改器.
+     * Get all attribute modifiers.
      *
      * @return string[]
      */
@@ -806,7 +806,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 转换为驼峰式数据格式.
+     * Convert to camelCase data format.
      *
      * @param array $data
      *
@@ -828,7 +828,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 判断是否为 include 字段.
+     * Check if field can be included.
      *
      * @param string $key
      *
@@ -845,7 +845,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 验证输入数据的安全性.
+     * Validate input data security.
      *
      * @param iterable $attributes
      * @param array    $meta
@@ -854,24 +854,24 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      */
     protected function validateInput(iterable $attributes, array $meta): void
     {
-        // 检查递归深度以防止栈溢出
+        // Check recursion depth to prevent stack overflow
         if ($this->getRecursionDepth($attributes) > 100) {
             throw new \InvalidArgumentException('Input data exceeds maximum recursion depth');
         }
 
-        // 检查数组大小以防止内存耗尽
+        // Check array size to prevent memory exhaustion
         if ($this->getArraySize($attributes) > 10000) {
             throw new \InvalidArgumentException('Input data exceeds maximum size limit');
         }
 
-        // 验证 meta 数据
+        // Validate meta data
         if (count($meta) > 1000) {
             throw new \InvalidArgumentException('Meta data exceeds maximum size limit');
         }
     }
 
     /**
-     * 获取数组的递归深度.
+     * Get array recursion depth.
      *
      * @param mixed $data
      * @param int   $depth
@@ -895,7 +895,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 获取数组的大小.
+     * Get array size.
      *
      * @param mixed $data
      *
@@ -916,7 +916,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 获取属性值数据.
+     * Get attribute value data.
      *
      * @param string     $key
      * @param null|mixed $default

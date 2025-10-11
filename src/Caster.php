@@ -21,14 +21,14 @@ use Mellivora\Http\Api\Contracts\Castable;
 class Caster
 {
     /**
-     * 默认日期格式.
+     * Default date format.
      *
      * @var string
      */
     public static string $dateFormat = 'Y-m-d';
 
     /**
-     * 默认时间格式.
+     * Default datetime format.
      *
      * @var string
      */
@@ -80,7 +80,7 @@ class Caster
     }
 
     /**
-     * 根据 $cast 类型转换数据.
+     * Cast data according to the $cast type.
      *
      * @param string $cast
      * @param mixed  $value
@@ -101,7 +101,7 @@ class Caster
     }
 
     /**
-     * 将使用 $cast 数据转换后的结果进行还原
+     * Restore the result after data conversion using $cast.
      *
      * @param string $cast
      * @param mixed  $value
@@ -136,7 +136,7 @@ class Caster
     }
 
     /**
-     * 进行基础的数据类型转换.
+     * Perform basic data type conversion.
      *
      * @param string $cast
      * @param mixed  $value

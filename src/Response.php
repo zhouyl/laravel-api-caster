@@ -11,8 +11,8 @@ use Psr\Http\Message\MessageInterface;
 use Serializable;
 
 /**
- * 重写 HTTP 响应结果
- * 根据网关 API 规范，新增了 code/message/data 方法.
+ * Rewrite HTTP response results.
+ * According to gateway API specifications, added code/message/data methods.
  */
 class Response extends HttpResponse implements ArrayAccess, Serializable
 {
@@ -76,7 +76,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     }
 
     /**
-     * 获取 json 数据中的 code 字段.
+     * Get the code field from json data.
      *
      * @return int
      */
@@ -86,7 +86,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     }
 
     /**
-     * 获取 json 数据中的 msg 字段.
+     * Get the message field from json data.
      *
      * @return string
      */
@@ -96,7 +96,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     }
 
     /**
-     * 获取 meta 头数据.
+     * Get meta header data.
      *
      * @param null|string $key
      * @param mixed       $default
@@ -111,7 +111,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     }
 
     /**
-     * 获取 json 数据中的 data 字段.
+     * Get the data field from json data.
      *
      * @return array
      */
@@ -123,7 +123,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     }
 
     /**
-     * 将获取到的全部响应内容转换为数组.
+     * Convert all response content to array.
      *
      * @return array
      */
