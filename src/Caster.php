@@ -18,17 +18,35 @@ use Illuminate\Support\Exceptions\MathException;
 use InvalidArgumentException;
 use Mellivora\Http\Api\Contracts\Castable;
 
+/**
+ * Data type converter for Entity attributes.
+ *
+ * This class handles the conversion of raw data values to their appropriate
+ * types based on cast definitions. It supports built-in PHP types, custom
+ * casters, and various specialized conversions like dates and decimals.
+ *
+ * @package Mellivora\Http\Api
+ * @author zhouyl <81438567@qq.com>
+ * @version 2.0.0
+ * @since 1.0.0
+ */
 class Caster
 {
     /**
-     * Default date format.
+     * Default date format for date casting.
+     *
+     * This format is used when casting values to dates without
+     * a specific format specified.
      *
      * @var string
      */
     public static string $dateFormat = 'Y-m-d';
 
     /**
-     * Default datetime format.
+     * Default datetime format for datetime casting.
+     *
+     * This format is used when casting values to datetimes without
+     * a specific format specified.
      *
      * @var string
      */
@@ -80,12 +98,23 @@ class Caster
     }
 
     /**
-     * Cast data according to the $cast type.
+     * Cast data according to the specified cast type.
      *
-     * @param string $cast
-     * @param mixed  $value
+     * Converts the given value to the appropriate type based on the cast definition.
+     * Supports built-in types (int, string, bool, etc.), custom casters, and enums.
      *
-     * @return mixed
+     * @param string $cast The cast type (e.g., 'int', 'datetime', 'decimal:2', MyEnum::class)
+     * @param mixed $value The value to cast
+     *
+     * @return mixed The casted value
+     *
+     * @throws \InvalidArgumentException When cast type is invalid
+     * @throws \Illuminate\Support\Exceptions\MathException When decimal casting fails
+     *
+     * @example
+     * $caster->cast('int', '123'); // returns 123
+     * $caster->cast('datetime', '2023-01-01'); // returns Carbon instance
+     * $caster->cast('decimal:2', '123.456'); // returns '123.46'
      */
     public function cast(string $cast, mixed $value): mixed
     {

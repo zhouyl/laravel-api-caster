@@ -22,90 +22,148 @@ use UnexpectedValueException;
 
 /**
  * Base class for data entity objects.
+ *
+ * This class provides a Laravel Eloquent-like interface for working with API response data.
+ * It supports type casting, field mapping, data transformation, and various array-like operations.
+ *
+ * @package Mellivora\Http\Api
+ * @author zhouyl <81438567@qq.com>
+ * @version 2.0.0
+ * @since 1.0.0
+ *
+ * @implements ArrayAccess<string, mixed>
+ * @implements IteratorAggregate<string, mixed>
+ *
+ * @property-read array<string, mixed> $attributes The converted attributes
+ * @property-read array<string, mixed> $originAttributes The original attributes
+ * @property-read array<string, mixed> $meta The meta information
+ *
+ * @method mixed __get(string $name) Get an attribute value
+ * @method void __set(string $name, mixed $value) Set an attribute value
+ * @method bool __isset(string $name) Check if an attribute exists
+ * @method void __unset(string $name) Unset an attribute
+ *
+ * @template TKey of array-key
+ * @template TValue
+ *
+ * @psalm-consistent-constructor
+ * @psalm-consistent-templates
  */
 class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Jsonable, JsonSerializable, Serializable
 {
     /**
-     * Original data.
+     * Original data before any transformations.
      *
-     * @var array
+     * This array contains the raw data as it was passed to the constructor,
+     * before any casting, mapping, or other transformations were applied.
+     *
+     * @var array<string, mixed>
      */
     protected array $originAttributes = [];
 
     /**
-     * Converted data.
+     * Converted data after all transformations.
      *
-     * @var array
+     * This array contains the final data after applying casts, mappings,
+     * renames, and other transformations.
+     *
+     * @var array<string, mixed>
      */
     protected array $attributes = [];
 
     /**
-     * Meta information.
+     * Meta information associated with the entity.
      *
-     * @var array
+     * This typically contains metadata from API responses such as
+     * pagination info, timestamps, or other contextual data.
+     *
+     * @var array<string, mixed>
      */
     protected array $meta = [];
 
     /**
-     * Default data.
+     * Default values for attributes.
      *
-     * @var array
+     * These values will be merged with the input data during construction.
+     *
+     * @var array<string, mixed>
      */
     protected array $defaults = [];
 
     /**
-     * Data fields to be retained.
+     * Data fields to be retained during processing.
      *
-     * @var array|string[]
+     * Use ['*'] to include all fields, or specify an array of field names
+     * to include only those fields. This is processed before excludes.
+     *
+     * @var array<string>
+     * @example ['*'] Include all fields
+     * @example ['id', 'name', 'email'] Include only specific fields
      */
     protected array $includes = ['*'];
 
     /**
-     * Data fields to be excluded.
+     * Data fields to be excluded from processing.
      *
-     * @var array
+     * Fields listed here will be removed from the final attributes,
+     * even if they are included in the includes array.
+     *
+     * @var array<string>
+     * @example ['password', 'secret_key'] Exclude sensitive fields
      */
     protected array $excludes = [];
 
     /**
      * Field renaming mapping.
      *
-     * @var array
+     * Maps original field names to new field names. The key is the original
+     * name and the value is the new name.
+     *
+     * @var array<string, string>
+     * @example ['user_id' => 'id', 'full_name' => 'name']
      */
     protected array $renames = [];
 
     /**
      * Data fields that need type conversion.
      *
-     * Example:
-     *  [
-     *      'status'   => StatusEnum::class,
-     *      'log_time' => 'datetime',
-     *  ]
+     * Defines how specific fields should be cast to different types.
+     * Supports built-in types (int, string, bool, etc.) and custom casters.
      *
-     * @var array
+     * @var array<string, string|class-string>
+     * @example [
+     *     'id' => 'int',
+     *     'status' => StatusEnum::class,
+     *     'created_at' => 'datetime',
+     *     'settings' => 'json',
+     *     'score' => 'decimal:2'
+     * ]
      */
     protected array $casts = [];
 
     /**
-     * Data fields that need mapping.
+     * Data fields that need entity mapping.
      *
-     * Example:
-     *  [
-     *      'manufacturer' => ManufacturerEntity::class,
-     *      'categories[]' => CategoryEntity::class,
-     *  ]
+     * Maps nested data to Entity instances. Use [] suffix for arrays.
+     * The key is the field name and the value is the Entity class.
      *
-     * @var array
+     * @var array<string, class-string<Entity>>
+     * @example [
+     *     'user' => UserEntity::class,
+     *     'categories[]' => CategoryEntity::class,
+     *     'meta.author' => AuthorEntity::class
+     * ]
      */
     protected array $mappings = [];
 
     /**
-     * Data fields to be appended.
+     * Data fields to be appended as computed attributes.
      *
-     * Example: ['parents'], requires corresponding getParentsAttribute() method in Entity class
+     * These fields will be added to the entity using accessor methods.
+     * Each field requires a corresponding getFieldNameAttribute() method.
      *
-     * @var array
+     * @var array<string>
+     * @example ['full_name', 'display_name', 'is_admin']
      */
     protected array $appends = [];
 
@@ -162,11 +220,18 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 使用 Response 对象构造响应实体.
+     * Create Entity from Response object.
      *
-     * @param Response $response
+     * Factory method that creates a new entity instance from an API response.
+     * Extracts data and meta information from the response automatically.
      *
-     * @return static
+     * @param Response $response The API response object
+     *
+     * @return static New entity instance
+     *
+     * @example
+     * $response = new Response($httpResponse);
+     * $user = UserEntity::from($response);
      */
     public static function from(Response $response): static
     {
@@ -174,12 +239,21 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * Convert data to Collection[Entity] structure.
+     * Convert data to Collection of Entity instances.
      *
-     * @param iterable $items
-     * @param array    $meta
+     * Creates a Laravel Collection containing Entity instances from an array
+     * of data items. Each item will be converted to an entity of the calling class.
      *
-     * @return Collection
+     * @param iterable<mixed> $items Array of data items to convert
+     * @param array<string, mixed> $meta Optional meta information for all entities
+     *
+     * @return Collection<int, static> Collection of entity instances
+     *
+     * @example
+     * $users = UserEntity::collection([
+     *     ['id' => 1, 'name' => 'John'],
+     *     ['id' => 2, 'name' => 'Jane']
+     * ]);
      */
     public static function collection(iterable $items, array $meta = []): Collection
     {
@@ -201,10 +275,20 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * Constructor method, pass in Entity array data.
+     * Constructor method, creates a new Entity instance.
      *
-     * @param iterable $attributes
-     * @param array    $meta
+     * Initializes the entity with the provided attributes and meta data.
+     * The attributes will be processed according to the entity's configuration
+     * including casts, mappings, renames, includes, and excludes.
+     *
+     * @param iterable<string, mixed> $attributes The entity attributes
+     * @param array<string, mixed> $meta Optional meta information
+     *
+     * @throws \InvalidArgumentException When input data exceeds safety limits
+     *
+     * @example
+     * $entity = new Entity(['id' => 1, 'name' => 'John']);
+     * $entity = new Entity($apiData, ['total' => 100, 'page' => 1]);
      */
     public function __construct(iterable $attributes = [], array $meta = [])
     {
@@ -656,7 +740,10 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 数据初始化.
+     * Initialize entity data.
+     *
+     * Processes the original attributes through various transformations
+     * including casts, mappings, and appends to create the final attributes.
      */
     protected function boot(): void
     {
@@ -700,14 +787,19 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 映射 Mappings 实体.
+     * Create a mapped entity instance.
      *
-     * @param string   $class
-     * @param iterable $attributes
+     * Creates an instance of the specified entity class with the given attributes.
+     * The class must be a subclass of Entity.
      *
-     * @return self
+     * @param class-string<Entity> $class The entity class name
+     * @param iterable<string, mixed> $attributes The attributes for the entity
+     *
+     * @return Entity The created entity instance
+     *
+     * @throws UnexpectedValueException When the class is not a valid Entity subclass
      */
-    protected function mappingEntity(string $class, iterable $attributes): self
+    protected function mappingEntity(string $class, iterable $attributes): Entity
     {
         if (!is_a($class, self::class, true)) {
             throw new UnexpectedValueException("Mapping class '$class' must instance of " . self::class);
@@ -717,12 +809,17 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 映射 Mappings 实体集合.
+     * Create a collection of mapped entity instances.
      *
-     * @param string   $class
-     * @param iterable $attributes
+     * Creates a Collection containing instances of the specified entity class,
+     * one for each item in the attributes iterable.
      *
-     * @return Collection
+     * @param class-string<Entity> $class The entity class name
+     * @param iterable<mixed> $attributes The attributes for each entity
+     *
+     * @return Collection<int, Entity> Collection of entity instances
+     *
+     * @throws UnexpectedValueException When the class is not a valid Entity subclass
      */
     protected function mappingCollection(string $class, iterable $attributes): Collection
     {
