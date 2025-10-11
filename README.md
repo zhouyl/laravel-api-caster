@@ -20,8 +20,8 @@ Convert API response results to Entity objects like Laravel Eloquent. This packa
 
 ## Requirements
 
-- PHP 8.3 or higher
-- Laravel 10.0, 11.0, or 12.0
+- PHP 8.3 or 8.4
+- Laravel 10.x, 11.x, or 12.x
 
 ## Installation
 

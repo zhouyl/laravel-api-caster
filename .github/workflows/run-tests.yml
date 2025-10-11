@@ -50,10 +50,7 @@ jobs:
 
       - name: Require Laravel & Testbench
         run: |
-          composer require "laravel/framework:${{ matrix.laravel }}" \
-                           "orchestra/testbench:${{ matrix.testbench }}" \
-                           --no-interaction --no-update
-          # 让 Laravel 自行解析 nesbot/carbon / brick/math 的正确版本
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress
 
       - name: List installed packages
