@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Mellivora\Http\Api;
 
 use ArrayAccess;
@@ -10,7 +12,7 @@ use Serializable;
 
 /**
  * 重写 HTTP 响应结果
- * 根据网关 API 规范，新增了 code/message/data 方法
+ * 根据网关 API 规范，新增了 code/message/data 方法.
  */
 class Response extends HttpResponse implements ArrayAccess, Serializable
 {
@@ -18,10 +20,8 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
      * Create a new response instance.
      *
      * @param HttpResponse|MessageInterface $response
-     *
-     * @return void
      */
-    public function __construct($response)
+    public function __construct(HttpResponse|MessageInterface $response)
     {
         if ($response instanceof HttpResponse) {
             $response = $response->toPsrResponse();
@@ -31,7 +31,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     }
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function __serialize(): array
     {
@@ -44,7 +44,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     }
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function __unserialize(array $data): void
     {
@@ -58,7 +58,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     /**
      * @codeCoverageIgnore
      *
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function serialize(): ?string
     {
@@ -68,15 +68,15 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     /**
      * @codeCoverageIgnore
      *
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
-    public function unserialize($serialized): void
+    public function unserialize(string $serialized): void
     {
-        $this->unserialize(unserialize($serialized));
+        $this->__unserialize(unserialize($serialized));
     }
 
     /**
-     * 获取 json 数据中的 code 字段
+     * 获取 json 数据中的 code 字段.
      *
      * @return int
      */
@@ -86,7 +86,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     }
 
     /**
-     * 获取 json 数据中的 msg 字段
+     * 获取 json 数据中的 msg 字段.
      *
      * @return string
      */
@@ -96,7 +96,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     }
 
     /**
-     * 获取 meta 头数据
+     * 获取 meta 头数据.
      *
      * @param null|string $key
      * @param mixed       $default
@@ -111,7 +111,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     }
 
     /**
-     * 获取 json 数据中的 data 字段
+     * 获取 json 数据中的 data 字段.
      *
      * @return array
      */
@@ -123,7 +123,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     }
 
     /**
-     * 将获取到的全部响应内容转换为数组
+     * 将获取到的全部响应内容转换为数组.
      *
      * @return array
      */
@@ -133,33 +133,33 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     }
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
-    public function offsetExists($offset): bool
+    public function offsetExists(mixed $offset): bool
     {
         return isset($this->json()[$offset]);
     }
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
-    public function offsetGet($offset): mixed
+    public function offsetGet(mixed $offset): mixed
     {
         return $this->json()[$offset] ?? null;
     }
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
-    public function offsetSet($offset, $value): void
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         throw new LogicException('Response data may not be mutated using array access.');
     }
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
-    public function offsetUnset($offset): void
+    public function offsetUnset(mixed $offset): void
     {
         throw new LogicException('Response data may not be mutated using array access.');
     }

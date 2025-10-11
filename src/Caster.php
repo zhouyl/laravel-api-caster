@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Mellivora\Http\Api;
 
 use BackedEnum;
@@ -19,14 +21,14 @@ use Mellivora\Http\Api\Contracts\Castable;
 class Caster
 {
     /**
-     * 默认日期格式
+     * 默认日期格式.
      *
      * @var string
      */
     public static string $dateFormat = 'Y-m-d';
 
     /**
-     * 默认时间格式
+     * 默认时间格式.
      *
      * @var string
      */
@@ -70,15 +72,15 @@ class Caster
     protected array $attributes;
 
     /**
-     * @param null|Entity $entity
+     * @param Entity|null $entity
      */
-    public function __construct(Entity $entity = null)
+    public function __construct(?Entity $entity = null)
     {
         $this->entity = $entity ?? new Entity();
     }
 
     /**
-     * 根据 $cast 类型转换数据
+     * 根据 $cast 类型转换数据.
      *
      * @param string $cast
      * @param mixed  $value
@@ -134,7 +136,7 @@ class Caster
     }
 
     /**
-     * 进行基础的数据类型转换
+     * 进行基础的数据类型转换.
      *
      * @param string $cast
      * @param mixed  $value
@@ -187,7 +189,7 @@ class Caster
     protected function asDecimal($value, $decimals): string
     {
         try {
-            return (string) BigDecimal::of($value)->toScale($decimals, RoundingMode::HALF_UP);
+            return (string) BigDecimal::of($value)->toScale((int) $decimals, RoundingMode::HALF_UP);
         } catch (BrickMathException $e) {
             throw new MathException('Unable to cast value to a decimal.', $e->getCode(), $e);
         }
@@ -262,7 +264,6 @@ class Caster
         }
 
         return trim(strtolower($cast));
-
     }
 
     protected function isDateCast(string $cast): bool
@@ -324,8 +325,15 @@ class Caster
         if (is_string($castType) && str_contains($castType, ':')) {
             $segments = explode(':', $castType, 2);
 
-            $castType  = $segments[0];
-            $arguments = explode(',', $segments[1]);
+            $castType = $segments[0];
+            $arguments = array_map(function ($arg) {
+                // Try to convert numeric strings to appropriate types
+                if (is_numeric($arg)) {
+                    return str_contains($arg, '.') ? (float) $arg : (int) $arg;
+                }
+
+                return $arg;
+            }, explode(',', $segments[1]));
         }
 
         if (is_subclass_of($castType, Castable::class)) {
@@ -385,8 +393,20 @@ class Caster
             return null;
         }
 
-        return is_subclass_of($enumClass, BackedEnum::class)
-            ? $enumClass::from($value)
-            : constant($enumClass.'::'.$value);
+        if (is_subclass_of($enumClass, BackedEnum::class)) {
+            // Try to cast the value to the appropriate type for backed enums
+            $reflection = new \ReflectionEnum($enumClass);
+            $backingType = $reflection->getBackingType();
+
+            if ($backingType && 'int' === $backingType->getName()) {
+                $value = (int) $value;
+            } elseif ($backingType && 'string' === $backingType->getName()) {
+                $value = (string) $value;
+            }
+
+            return $enumClass::from($value);
+        }
+
+        return constant($enumClass . '::' . $value);
     }
 }

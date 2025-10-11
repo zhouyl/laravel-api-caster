@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Mellivora\Http\Api\Tests\MockLib;
 
 use Mellivora\Http\Api\Contracts\Castable;
@@ -13,7 +15,7 @@ class Message implements Castable
      */
     public static function castUsing(array $arguments): CastsAttributes
     {
-        return new class implements CastsAttributes {
+        return new class () implements CastsAttributes {
             public function getCastValue(Entity $entity, string $key, $value): array
             {
                 return [$key => $value];

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Mellivora\Http\Api\Tests;
 
 use ArrayObject;
@@ -59,7 +61,7 @@ class EntityTest extends TestCase
 
     public function getResponse(array $data): Response
     {
-        $psrResponse  = new PsrResponse($data['status'], $data['headers'], json_encode($data['body']));
+        $psrResponse = new PsrResponse($data['status'], $data['headers'], json_encode($data['body']));
         $httpResponse = new HttpResponse($psrResponse);
 
         return new Response($httpResponse);
@@ -71,7 +73,7 @@ class EntityTest extends TestCase
     public function testEntity($data): void
     {
         $entity = Entity::from($this->getResponse($data));
-        $body   = $data['body'];
+        $body = $data['body'];
 
         $this->assertInstanceOf(Entity::class, $entity);
 
@@ -134,7 +136,7 @@ class EntityTest extends TestCase
     public function testCollection($data): void
     {
         $collection = Entity::collectionResponse($this->getResponse($data));
-        $body       = $data['body'];
+        $body = $data['body'];
 
         $this->assertInstanceOf(Collection::class, $collection);
 
@@ -154,8 +156,8 @@ class EntityTest extends TestCase
 
     public function testNoCamelEntity(): void
     {
-        $data   = ['product_id' => 123];
-        $entity = new class($data) extends Entity {
+        $data = ['product_id' => 123];
+        $entity = new class ($data) extends Entity {
             protected bool $useCamel = false;
         };
 
@@ -166,7 +168,7 @@ class EntityTest extends TestCase
     public function testMappingEntityException(): void
     {
         $this->expectException(UnexpectedValueException::class);
-        new class(['brand' => ['id' => 1, 'name' => 'foo']]) extends Entity {
+        new class (['brand' => ['id' => 1, 'name' => 'foo']]) extends Entity {
             protected array $mappings = [
                 '*' => Message::class,
             ];
@@ -176,7 +178,7 @@ class EntityTest extends TestCase
     public function testMappingCollectionException(): void
     {
         $this->expectException(UnexpectedValueException::class);
-        new class(['brands' => ['brand' => ['id' => 1, 'name' => 'foo']]]) extends Entity {
+        new class (['brands' => ['brand' => ['id' => 1, 'name' => 'foo']]]) extends Entity {
             protected array $mappings = [
                 '*[]' => Message::class,
             ];
@@ -189,14 +191,14 @@ class EntityTest extends TestCase
             'brand' => ['id' => 1, 'name' => 'foo'],
         ];
 
-        $entity = new class($data) extends Entity {
+        $entity = new class ($data) extends Entity {
             protected array $mappings = [
                 '*' => Entity::class,
             ];
         };
 
         $this->assertInstanceOf(Entity::class, $entity->brand);
-        $entity = new class($data) extends Entity {
+        $entity = new class ($data) extends Entity {
             protected array $mappings = [
                 'brand' => Entity::class,
             ];
@@ -204,8 +206,8 @@ class EntityTest extends TestCase
 
         $this->assertInstanceOf(Entity::class, $entity->brand);
 
-        $data   = ['brands' => [$data]];
-        $entity = new class($data) extends Entity {
+        $data = ['brands' => [$data]];
+        $entity = new class ($data) extends Entity {
             protected array $mappings = [
                 '*[]' => Entity::class,
             ];
@@ -214,7 +216,7 @@ class EntityTest extends TestCase
         $this->assertInstanceOf(Collection::class, $entity->brands);
         $this->assertInstanceOf(Entity::class, $entity->brands->first());
 
-        $entity = new class($data) extends Entity {
+        $entity = new class ($data) extends Entity {
             protected array $mappings = [
                 'brands[]' => Entity::class,
             ];
@@ -240,7 +242,7 @@ class EntityTest extends TestCase
 
         $meta = ['locale' => 'zh-CN'];
 
-        $entity = new class($data, $meta) extends Entity {
+        $entity = new class ($data, $meta) extends Entity {
             protected array $renames = ['productId' => 'id'];
 
             protected array $casts = ['status' => StatusEnum::class, 'createTime' => 'datetime'];
@@ -257,14 +259,14 @@ class EntityTest extends TestCase
             }
         };
 
-        $origin                 = $data->getArrayCopy();
-        $origin['productId']    = $data['product_id'];
-        $origin['createTime']   = $data['create_time'];
+        $origin = $data->getArrayCopy();
+        $origin['productId'] = $data['product_id'];
+        $origin['createTime'] = $data['create_time'];
         $origin['excludeField'] = $data['exclude_field'];
         unset($origin['product_id'], $origin['create_time'], $origin['exclude_field']);
 
-        $rename              = $origin;
-        $rename['id']        = $origin['productId'];
+        $rename = $origin;
+        $rename['id'] = $origin['productId'];
         $rename['brandName'] = $origin['brand']['name'];
         unset($rename['productId'], $rename['excludeField']);
 

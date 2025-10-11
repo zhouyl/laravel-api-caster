@@ -1,0 +1,17 @@
+parameters:
+    level: 6
+    paths:
+        - src
+    ignoreErrors:
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::toArray\(\)#'
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::toJson\(\)#'
+        - '#Access to an undefined property [a-zA-Z0-9\\_]+::\$[a-zA-Z0-9_]+#'
+        - '#Unsafe usage of new static\(\)#'
+        - '#Parameter .+ with no type specified#'
+        - '#has no return type specified#'
+        - '#Parameter .+ is implicitly nullable via default value null#'
+        -
+            identifier: missingType.iterableValue
+        -
+            identifier: missingType.generics
+    reportUnmatchedIgnoredErrors: false

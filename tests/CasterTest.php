@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Mellivora\Http\Api\Tests;
 
 use Carbon\Carbon;
@@ -18,12 +20,12 @@ class CasterTest extends TestCase
 {
     public function testCast(): void
     {
-        $random = md5(microtime(true));
+        $random = md5((string) microtime(true));
 
         $objectArray = ['foo' => $random];
-        $objectJson  = '{"foo":"'.$random.'"}';
-        $listJson    = "[$objectJson]";
-        $listArray   = [$objectArray];
+        $objectJson = '{"foo":"' . $random . '"}';
+        $listJson = "[$objectJson]";
+        $listArray = [$objectArray];
 
         $casts = [
             'int'                => 'int',
@@ -43,7 +45,7 @@ class CasterTest extends TestCase
             'immutable_date'     => 'immutable_date:Y-m-d',
             'immutable_datetime' => 'immutable_datetime:Y-m-d H:i:s',
             'timestamp'          => 'timestamp',
-            'path'               => SplitterCastAttribute::class.':12345',
+            'path'               => SplitterCastAttribute::class . ':12345',
             'status'             => StatusEnum::class,
             'message'            => Message::class,
             'not_castable'       => 'NotExistsClass',
@@ -145,7 +147,6 @@ class CasterTest extends TestCase
 
         $this->assertSame($caster->cast($casts['not_castable'], '123.45'), '123.45');
         $this->assertSame($caster->value($casts['not_castable'], '123.45'), '123.45');
-
     }
 
     public function testMathException()

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Mellivora\Http\Api\Tests;
 
 use GuzzleHttp\Psr7\Response as PsrResponse;
@@ -33,9 +35,9 @@ class ResponseTest extends TestCase
     {
         parent::setUp();
 
-        $this->psrResponse  = new PsrResponse($this->data['status'], $this->data['headers'], json_encode($this->data['body']));
+        $this->psrResponse = new PsrResponse($this->data['status'], $this->data['headers'], json_encode($this->data['body']));
         $this->httpResponse = new HttpResponse($this->psrResponse);
-        $this->response     = new Response($this->httpResponse);
+        $this->response = new Response($this->httpResponse);
     }
 
     public function testResponse()

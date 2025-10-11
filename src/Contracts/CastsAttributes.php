@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Mellivora\Http\Api\Contracts;
 
 use Mellivora\Http\Api\Entity;
