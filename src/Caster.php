@@ -125,12 +125,19 @@ class Caster
     }
 
     /**
-     * Restore the result after data conversion using $cast.
+     * Restore the result after data conversion using cast type.
      *
-     * @param string $cast
-     * @param mixed  $value
+     * Converts a casted value back to its original representation.
+     * This is useful for serialization or when you need the raw value.
      *
-     * @return mixed
+     * @param string $cast The cast type used for conversion
+     * @param mixed $value The casted value to restore
+     *
+     * @return mixed The restored original value
+     *
+     * @example
+     * $caster->value('datetime', $carbonInstance); // returns formatted string
+     * $caster->value('int', 123); // returns 123
      */
     public function value(string $cast, mixed $value): mixed
     {
@@ -162,12 +169,20 @@ class Caster
     /**
      * Perform basic data type conversion.
      *
-     * @param string $cast
-     * @param mixed  $value
+     * Handles the core type casting logic for built-in PHP types and
+     * common data transformations like JSON, dates, and collections.
      *
-     * @return mixed
+     * @param string $cast The cast type (e.g., 'int', 'datetime', 'decimal:2')
+     * @param mixed $value The value to cast
+     *
+     * @return mixed The casted value
+     *
+     * @throws \Illuminate\Support\Exceptions\MathException When decimal casting fails
+     * @throws \InvalidArgumentException When JSON parsing fails
+     *
+     * @internal This method is used internally by the cast() method
      */
-    protected function castValue(string $cast, $value): mixed
+    protected function castValue(string $cast, mixed $value): mixed
     {
         return match ($this->getCastType($cast)) {
             'int', 'integer' => (int) $value,
@@ -187,7 +202,13 @@ class Caster
         };
     }
 
-    protected function fromFloat($value): float
+    /**
+     * Convert value to float with special handling for infinity and NaN.
+     *
+     * @param mixed $value The value to convert to float
+     * @return float The converted float value
+     */
+    protected function fromFloat(mixed $value): float
     {
         return match ((string) $value) {
             'Infinity'  => INF,
@@ -197,7 +218,14 @@ class Caster
         };
     }
 
-    protected function fromJson($value, $asObject = false)
+    /**
+     * Convert value from JSON string or array-like object.
+     *
+     * @param mixed $value The value to convert from JSON
+     * @param bool $asObject Whether to return as object instead of array
+     * @return mixed The decoded JSON value
+     */
+    protected function fromJson(mixed $value, bool $asObject = false): mixed
     {
         if ($value instanceof Arrayable) {
             return $value->toArray();
@@ -210,7 +238,15 @@ class Caster
         return json_decode($value ?? '', !$asObject);
     }
 
-    protected function asDecimal($value, $decimals): string
+    /**
+     * Convert value to decimal string with specified precision.
+     *
+     * @param mixed $value The value to convert to decimal
+     * @param int|string $decimals Number of decimal places
+     * @return string The decimal string representation
+     * @throws \Illuminate\Support\Exceptions\MathException When conversion fails
+     */
+    protected function asDecimal(mixed $value, int|string $decimals): string
     {
         try {
             return (string) BigDecimal::of($value)->toScale((int) $decimals, RoundingMode::HALF_UP);
@@ -219,12 +255,28 @@ class Caster
         }
     }
 
-    protected function asDate($value): Carbon
+    /**
+     * Convert value to Carbon date instance (start of day).
+     *
+     * @param mixed $value The value to convert to date
+     * @return Carbon The Carbon date instance
+     */
+    protected function asDate(mixed $value): Carbon
     {
         return $this->asDateTime($value)->startOfDay();
     }
 
-    protected function asDateTime($value)
+    /**
+     * Convert value to Carbon datetime instance.
+     *
+     * Supports various input formats including DateTimeInterface objects,
+     * timestamps, and formatted date strings.
+     *
+     * @param mixed $value The value to convert to datetime
+     * @return Carbon The Carbon datetime instance
+     * @throws \InvalidArgumentException When the value cannot be parsed as a date
+     */
+    protected function asDateTime(mixed $value): Carbon
     {
         if ($value instanceof DateTimeInterface) {
             return Carbon::parse(
@@ -250,6 +302,12 @@ class Caster
         return $date ?: Carbon::parse($value);
     }
 
+    /**
+     * Serialize date to string format.
+     *
+     * @param DateTimeInterface $date The date to serialize
+     * @return string The formatted date string
+     */
     protected function serializeDate(DateTimeInterface $date): string
     {
         return $date instanceof DateTimeImmutable ?
@@ -257,6 +315,12 @@ class Caster
             Carbon::instance($date)->format(static::$dateFormat);
     }
 
+    /**
+     * Serialize datetime to string format.
+     *
+     * @param DateTimeInterface $date The datetime to serialize
+     * @return string The formatted datetime string
+     */
     protected function serializeDatetime(DateTimeInterface $date): string
     {
         return $date instanceof DateTimeImmutable ?
@@ -264,7 +328,13 @@ class Caster
             Carbon::instance($date)->format(static::$datetimeFormat);
     }
 
-    protected function asTimestamp($value): int
+    /**
+     * Convert value to Unix timestamp.
+     *
+     * @param mixed $value The value to convert to timestamp
+     * @return int The Unix timestamp
+     */
+    protected function asTimestamp(mixed $value): int
     {
         return $this->asDateTime($value)->getTimestamp();
     }
@@ -315,9 +385,15 @@ class Caster
         return str_starts_with($cast, 'decimal:');
     }
 
-    protected function isStandardDateFormat($value): bool
+    /**
+     * Check if value matches standard date format (Y-m-d).
+     *
+     * @param mixed $value The value to check
+     * @return bool True if matches standard date format
+     */
+    protected function isStandardDateFormat(mixed $value): bool
     {
-        return (bool) preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $value);
+        return is_string($value) && (bool) preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $value);
     }
 
     protected function parseCasterClass(string $class): string
@@ -340,7 +416,13 @@ class Caster
         return false;
     }
 
-    protected function resolveCasterClass($cast): mixed
+    /**
+     * Resolve caster class instance from cast definition.
+     *
+     * @param string $cast The cast definition
+     * @return mixed The caster instance
+     */
+    protected function resolveCasterClass(string $cast): mixed
     {
         $castType = $this->getCastType($cast);
 
@@ -371,7 +453,14 @@ class Caster
         return new $castType(...$arguments);
     }
 
-    protected function getCastableValue($cast, $value)
+    /**
+     * Get casted value using custom caster.
+     *
+     * @param string $cast The cast definition
+     * @param mixed $value The value to cast
+     * @return mixed The casted value
+     */
+    protected function getCastableValue(string $cast, mixed $value): mixed
     {
         if (null === $value) {
             return null;
@@ -380,7 +469,14 @@ class Caster
         return $this->resolveCasterClass($cast)->getCastValue($this->entity, $cast, $value);
     }
 
-    protected function fromCastableValue($cast, $value)
+    /**
+     * Convert casted value back to original using custom caster.
+     *
+     * @param string $cast The cast definition
+     * @param mixed $value The casted value
+     * @return mixed The original value
+     */
+    protected function fromCastableValue(string $cast, mixed $value): mixed
     {
         if (null === $value) {
             return null;
@@ -400,7 +496,13 @@ class Caster
         return enum_exists($castType);
     }
 
-    protected function getEnumValue($value)
+    /**
+     * Get the value from an enum instance.
+     *
+     * @param mixed $value The enum instance or value
+     * @return mixed The enum value
+     */
+    protected function getEnumValue(mixed $value): mixed
     {
         if (null === $value) {
             return null;
@@ -411,7 +513,14 @@ class Caster
             : $value->name;
     }
 
-    protected function getEnumCase($enumClass, $value)
+    /**
+     * Get enum case from class and value.
+     *
+     * @param string $enumClass The enum class name
+     * @param mixed $value The value to convert to enum case
+     * @return mixed The enum case
+     */
+    protected function getEnumCase(string $enumClass, mixed $value): mixed
     {
         if (null === $value) {
             return null;

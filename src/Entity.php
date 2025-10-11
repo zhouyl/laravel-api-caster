@@ -100,11 +100,11 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     /**
      * Field renaming mapping.
      *
-     * Maps original field names to new field names. The key is the original
-     * name and the value is the new name.
+     * Maps camelCase field names to new field names. The key is the camelCase
+     * name (after snake_case to camelCase conversion) and the value is the new name.
      *
      * @var array<string, string>
-     * @example ['user_id' => 'id', 'full_name' => 'name']
+     * @example ['userId' => 'id', 'fullName' => 'name']
      */
     protected array $renames = [];
 
