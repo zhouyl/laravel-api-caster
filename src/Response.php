@@ -8,6 +8,7 @@ use ArrayAccess;
 use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Http\Client\Response as HttpResponse;
+use Illuminate\Support\Arr;
 use LogicException;
 use Psr\Http\Message\MessageInterface;
 use Serializable;
@@ -112,7 +113,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     {
         $meta = $this->offsetGet('meta') ?? [];
 
-        return null !== $key ? data_get($meta, $key, $default) : $meta;
+        return null !== $key ? Arr::get($meta, $key, $default) : $meta;
     }
 
     /**
@@ -124,7 +125,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
     {
         $data = $this->offsetGet('data') ?? [];
 
-        return null !== $key ? data_get($data, $key, $default) : $data;
+        return null !== $key ? Arr::get($data, $key, $default) : $data;
     }
 
     /**

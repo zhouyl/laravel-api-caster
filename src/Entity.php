@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Countable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -356,7 +357,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      */
     public function meta(string $key = null, mixed $default = null): mixed
     {
-        return null !== $key ? data_get($this->meta, $key, $default) : $this->meta;
+        return null !== $key ? Arr::get($this->meta, $key, $default) : $this->meta;
     }
 
     /**
@@ -369,7 +370,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      */
     public function origin(string $key = null, mixed $default = null): mixed
     {
-        return null !== $key ? data_get($this->originAttributes, $key, $default) : $this->originAttributes;
+        return null !== $key ? Arr::get($this->originAttributes, $key, $default) : $this->originAttributes;
     }
 
     /**
@@ -453,7 +454,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
 
         foreach ($keys as $key) {
             if ($this->offsetExists($key)) {
-                data_set($array, $key, $this->offsetGet($key));
+                Arr::set($array, $key, $this->offsetGet($key));
             }
         }
 
@@ -491,7 +492,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      */
     public function offsetGet(mixed $offset): mixed
     {
-        return data_get($this->attributes, $offset);
+        return Arr::get($this->attributes, $offset);
     }
 
     /**
@@ -517,7 +518,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        data_set($this->attributes, $offset, $value);
+        Arr::set($this->attributes, $offset, $value);
     }
 
     /**
@@ -525,7 +526,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      */
     public function offsetUnset(mixed $offset): void
     {
-        data_forget($this->attributes, $offset);
+        Arr::forget($this->attributes, $offset);
     }
 
     /**
