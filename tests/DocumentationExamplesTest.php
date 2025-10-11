@@ -128,7 +128,7 @@ class DocumentationExamplesTest extends TestCase
 
             public function getFullNameAttribute(): string
             {
-                return $this->firstName . ' ' . $this->lastName;
+                return $this->firstName.' '.$this->lastName;
             }
         };
 

@@ -23,7 +23,7 @@ class CasterTest extends TestCase
         $random = md5((string) microtime(true));
 
         $objectArray = ['foo' => $random];
-        $objectJson = '{"foo":"' . $random . '"}';
+        $objectJson = '{"foo":"'.$random.'"}';
         $listJson = "[$objectJson]";
         $listArray = [$objectArray];
 
@@ -45,7 +45,7 @@ class CasterTest extends TestCase
             'immutable_date'     => 'immutable_date:Y-m-d',
             'immutable_datetime' => 'immutable_datetime:Y-m-d H:i:s',
             'timestamp'          => 'timestamp',
-            'path'               => SplitterCastAttribute::class . ':12345',
+            'path'               => SplitterCastAttribute::class.':12345',
             'status'             => StatusEnum::class,
             'message'            => Message::class,
             'not_castable'       => 'NotExistsClass',

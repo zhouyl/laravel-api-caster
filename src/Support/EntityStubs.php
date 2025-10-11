@@ -20,19 +20,10 @@ use Mellivora\Http\Api\Response;
 abstract class EntityStubs
 {
     /**
-     * Create a new entity instance.
-     *
-     * @param iterable<string, mixed> $attributes
-     * @param array<string, mixed> $meta
-     */
-    public function __construct(iterable $attributes = [], array $meta = [])
-    {
-    }
-
-    /**
      * Create entity from Response.
      *
      * @param Response $response
+     *
      * @return static
      */
     public static function from(Response $response): static
@@ -42,8 +33,9 @@ abstract class EntityStubs
     /**
      * Create collection of entities.
      *
-     * @param iterable<mixed> $items
+     * @param iterable<mixed>      $items
      * @param array<string, mixed> $meta
+     *
      * @return Collection<int, static>
      */
     public static function collection(iterable $items, array $meta = []): Collection
@@ -54,6 +46,7 @@ abstract class EntityStubs
      * Create collection from Response.
      *
      * @param Response $response
+     *
      * @return Collection<int, static>
      */
     public static function collectionResponse(Response $response): Collection
@@ -61,10 +54,21 @@ abstract class EntityStubs
     }
 
     /**
+     * Create a new entity instance.
+     *
+     * @param iterable<string, mixed> $attributes
+     * @param array<string, mixed>    $meta
+     */
+    public function __construct(iterable $attributes = [], array $meta = [])
+    {
+    }
+
+    /**
      * Get attribute value.
      *
      * @param string $key
-     * @param mixed $default
+     * @param mixed  $default
+     *
      * @return mixed
      */
     public function getAttribute(string $key, mixed $default = null): mixed
@@ -75,7 +79,8 @@ abstract class EntityStubs
      * Set attribute value.
      *
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
+     *
      * @return static
      */
     public function setAttribute(string $key, mixed $value): static
@@ -86,6 +91,7 @@ abstract class EntityStubs
      * Check if attribute exists.
      *
      * @param string $key
+     *
      * @return bool
      */
     public function hasAttribute(string $key): bool
@@ -95,8 +101,9 @@ abstract class EntityStubs
     /**
      * Get meta information.
      *
-     * @param string|null $key
-     * @param mixed $default
+     * @param null|string $key
+     * @param mixed       $default
+     *
      * @return mixed
      */
     public function meta(?string $key = null, mixed $default = null): mixed
@@ -106,8 +113,9 @@ abstract class EntityStubs
     /**
      * Get original data.
      *
-     * @param string|null $key
-     * @param mixed $default
+     * @param null|string $key
+     * @param mixed       $default
+     *
      * @return mixed
      */
     public function origin(?string $key = null, mixed $default = null): mixed
@@ -127,6 +135,7 @@ abstract class EntityStubs
      * Convert to JSON.
      *
      * @param int $options
+     *
      * @return string
      */
     public function toJson(int $options = 0): string
@@ -225,19 +234,33 @@ abstract class CommonEntityTypes
 abstract class CastTypes
 {
     public const INT = 'int';
+
     public const INTEGER = 'integer';
+
     public const FLOAT = 'float';
+
     public const DOUBLE = 'double';
+
     public const REAL = 'real';
+
     public const STRING = 'string';
+
     public const BOOL = 'bool';
+
     public const BOOLEAN = 'boolean';
+
     public const ARRAY = 'array';
+
     public const JSON = 'json';
+
     public const OBJECT = 'object';
+
     public const COLLECTION = 'collection';
+
     public const DATE = 'date';
+
     public const DATETIME = 'datetime';
+
     public const TIMESTAMP = 'timestamp';
 
     /** @var string Decimal with 2 places */

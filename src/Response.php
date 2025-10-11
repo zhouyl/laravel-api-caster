@@ -133,7 +133,7 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
      * Attempts to parse the timestamp from the response meta data.
      * Supports numeric timestamps, string dates, and DateTimeInterface objects.
      *
-     * @return DateTimeInterface|null The parsed timestamp or null if not found/parseable
+     * @return null|DateTimeInterface The parsed timestamp or null if not found/parseable
      *
      * @example
      * $response->timestamp(); // Returns Carbon instance or null

@@ -17,7 +17,7 @@ class SplitterCastAttribute implements CastsAttributes
 
     public function getCastValue(Entity $entity, string $key, mixed $value): array
     {
-        $splits = preg_split('/[' . preg_quote(static::$delimiter) . ']/', $value);
+        $splits = preg_split('/['.preg_quote(static::$delimiter).']/', $value);
         $values = [];
 
         foreach ($splits as $value) {

@@ -79,6 +79,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      * to include only those fields. This is processed before excludes.
      *
      * @var array<string>
+     *
      * @example ['*'] Include all fields
      * @example ['id', 'name', 'email'] Include only specific fields
      */
@@ -91,6 +92,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      * even if they are included in the includes array.
      *
      * @var array<string>
+     *
      * @example ['password', 'secret_key'] Exclude sensitive fields
      */
     protected array $excludes = [];
@@ -102,6 +104,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      * name (after snake_case to camelCase conversion) and the value is the new name.
      *
      * @var array<string, string>
+     *
      * @example ['userId' => 'id', 'fullName' => 'name']
      */
     protected array $renames = [];
@@ -112,7 +115,8 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      * Defines how specific fields should be cast to different types.
      * Supports built-in types (int, string, bool, etc.) and custom casters.
      *
-     * @var array<string, string|class-string>
+     * @var array<string, class-string|string>
+     *
      * @example [
      *     'id' => 'int',
      *     'status' => StatusEnum::class,
@@ -130,6 +134,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      * The key is the field name and the value is the Entity class.
      *
      * @var array<string, class-string<Entity>>
+     *
      * @example [
      *     'user' => UserEntity::class,
      *     'categories[]' => CategoryEntity::class,
@@ -145,6 +150,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      * Each field requires a corresponding getFieldNameAttribute() method.
      *
      * @var array<string>
+     *
      * @example ['full_name', 'display_name', 'is_admin']
      */
     protected array $appends = [];
@@ -219,8 +225,8 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      * Creates a Laravel Collection containing Entity instances from an array
      * of data items. Each item will be converted to an entity of the calling class.
      *
-     * @param iterable<mixed> $items Array of data items to convert
-     * @param array<string, mixed> $meta Optional meta information for all entities
+     * @param iterable<mixed>      $items Array of data items to convert
+     * @param array<string, mixed> $meta  Optional meta information for all entities
      *
      * @return Collection<int, static> Collection of entity instances
      *
@@ -240,7 +246,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
             }
 
             if (!$item instanceof static) {
-                throw new UnexpectedValueException('Expected instance of ' . static::class);
+                throw new UnexpectedValueException('Expected instance of '.static::class);
             }
 
             $collection->push($item);
@@ -257,7 +263,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      * including casts, mappings, renames, includes, and excludes.
      *
      * @param iterable<string, mixed> $attributes The entity attributes
-     * @param array<string, mixed> $meta Optional meta information
+     * @param array<string, mixed>    $meta       Optional meta information
      *
      * @throws InvalidArgumentException When input data exceeds safety limits
      *
@@ -746,8 +752,9 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      *
      * @param array $attributes
      *
-     * @return array
      * @throws ReflectionException
+     *
+     * @return array
      */
     protected function bootCasts(array $attributes): array
     {
@@ -766,17 +773,17 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      * Creates an instance of the specified entity class with the given attributes.
      * The class must be a subclass of Entity.
      *
-     * @param class-string<Entity> $class The entity class name
+     * @param class-string<Entity>    $class      The entity class name
      * @param iterable<string, mixed> $attributes The attributes for the entity
      *
-     * @return Entity The created entity instance
-     *
      * @throws UnexpectedValueException When the class is not a valid Entity subclass
+     *
+     * @return Entity The created entity instance
      */
-    protected function mappingEntity(string $class, iterable $attributes): Entity
+    protected function mappingEntity(string $class, iterable $attributes): self
     {
         if (!is_a($class, self::class, true)) {
-            throw new UnexpectedValueException("Mapping class '$class' must instance of " . self::class);
+            throw new UnexpectedValueException("Mapping class '$class' must instance of ".self::class);
         }
 
         return new $class($attributes, $this->meta());
@@ -788,17 +795,17 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      * Creates a Collection containing instances of the specified entity class,
      * one for each item in the attributes iterable.
      *
-     * @param class-string<Entity> $class The entity class name
-     * @param iterable<mixed> $attributes The attributes for each entity
-     *
-     * @return Collection<int, Entity> Collection of entity instances
+     * @param class-string<Entity> $class      The entity class name
+     * @param iterable<mixed>      $attributes The attributes for each entity
      *
      * @throws UnexpectedValueException When the class is not a valid Entity subclass
+     *
+     * @return Collection<int, Entity> Collection of entity instances
      */
     protected function mappingCollection(string $class, iterable $attributes): Collection
     {
         if (!is_a($class, self::class, true)) {
-            throw new UnexpectedValueException("Mapping class '$class' must instance of " . self::class);
+            throw new UnexpectedValueException("Mapping class '$class' must instance of ".self::class);
         }
 
         return $class::collection($attributes, $this->meta());
@@ -956,6 +963,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
         }
 
         $maxDepth = $depth;
+
         foreach ($data as $item) {
             if (is_iterable($item)) {
                 $maxDepth = max($maxDepth, $this->getRecursionDepth($item, $depth + 1));
@@ -979,6 +987,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
         }
 
         $size = 0;
+
         foreach ($data as $item) {
             $size += is_iterable($item) ? $this->getArraySize($item) : 1;
         }
@@ -996,7 +1005,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      */
     protected function getAttributeValue(string $key, mixed $default = null): mixed
     {
-        $method = 'get' . Str::studly($key) . 'Attribute';
+        $method = 'get'.Str::studly($key).'Attribute';
 
         if (method_exists($this, $method)) {
             return $this->{$method}();

@@ -12,13 +12,14 @@ class PerformanceTest extends TestCase
     public function testEntityCreationPerformance(): void
     {
         $data = [];
-        for ($i = 0; $i < 100; ++$i) {
+
+        for ($i = 0; $i < 100; $i++) {
             $data["field_$i"] = "value_$i";
         }
 
         $startTime = microtime(true);
 
-        for ($i = 0; $i < 100; ++$i) {
+        for ($i = 0; $i < 100; $i++) {
             $entity = new Entity($data);
             $this->assertInstanceOf(Entity::class, $entity);
         }
@@ -43,7 +44,7 @@ class PerformanceTest extends TestCase
 
         $startTime = microtime(true);
 
-        for ($i = 0; $i < 1000; ++$i) {
+        for ($i = 0; $i < 1000; $i++) {
             $caster->cast('string', $testData['string_value']);
             $caster->cast('int', $testData['int_value']);
             $caster->cast('float', $testData['float_value']);
@@ -62,7 +63,8 @@ class PerformanceTest extends TestCase
     {
         // Create a moderately large dataset that doesn't exceed our safety limits
         $data = [];
-        for ($i = 0; $i < 1000; ++$i) {
+
+        for ($i = 0; $i < 1000; $i++) {
             $data["key$i"] = [
                 'id'     => $i,
                 'name'   => "name_$i",
@@ -97,7 +99,8 @@ class PerformanceTest extends TestCase
         $initialMemory = memory_get_usage();
 
         $entities = [];
-        for ($i = 0; $i < 100; ++$i) {
+
+        for ($i = 0; $i < 100; $i++) {
             $data = [
                 'id'   => $i,
                 'name' => "entity_$i",

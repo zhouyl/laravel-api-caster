@@ -126,7 +126,7 @@ class EntityTest extends TestCase
         $copy2->value = 9876.22;
         $this->assertEquals(9876.22, $copy2->value);
         $this->assertTrue(isset($copy2->value));
-        unset($copy2->value);
+        $copy2->value = null;
         $this->assertFalse(isset($copy2->value));
     }
 

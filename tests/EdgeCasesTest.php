@@ -136,7 +136,8 @@ class EdgeCasesTest extends TestCase
     public function testEntityWithLargeDataset(): void
     {
         $data = [];
-        for ($i = 0; $i < 1000; ++$i) {
+
+        for ($i = 0; $i < 1000; $i++) {
             $data["key$i"] = "value_$i";
         }
 
@@ -169,6 +170,7 @@ class EdgeCasesTest extends TestCase
         $entity = new Entity($data);
 
         $result = [];
+
         foreach ($entity as $key => $value) {
             $result[$key] = $value;
         }
@@ -187,7 +189,7 @@ class EdgeCasesTest extends TestCase
 
         // Test __isset and __unset
         $this->assertTrue(isset($entity->test));
-        unset($entity->test);
+        $entity->test = null;
         $this->assertFalse(isset($entity->test));
     }
 }

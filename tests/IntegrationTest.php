@@ -83,7 +83,7 @@ class IntegrationTest extends TestCase
 
             public function getDisplayNameAttribute(): string
             {
-                return $this->name . ' (' . $this->email . ')';
+                return $this->name.' ('.$this->email.')';
             }
 
             public function getIsAdminAttribute(): bool

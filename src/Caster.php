@@ -89,7 +89,7 @@ class Caster
     /**
      * Create a new Caster instance.
      *
-     * @param Entity|null $entity The entity instance to associate with this caster
+     * @param null|Entity $entity The entity instance to associate with this caster
      */
     public function __construct(?Entity $entity = null)
     {
@@ -102,13 +102,13 @@ class Caster
      * Converts the given value to the appropriate type based on the cast definition.
      * Supports built-in types (int, string, bool, etc.), custom casters, and enums.
      *
-     * @param string $cast The cast type (e.g., 'int', 'datetime', 'decimal:2', MyEnum::class)
-     * @param mixed $value The value to cast
+     * @param string $cast  The cast type (e.g., 'int', 'datetime', 'decimal:2', MyEnum::class)
+     * @param mixed  $value The value to cast
+     *
+     * @throws InvalidArgumentException          When cast type is invalid
+     * @throws MathException|ReflectionException When decimal casting fails
      *
      * @return mixed The casted value
-     *
-     * @throws InvalidArgumentException When cast type is invalid
-     * @throws MathException|ReflectionException When decimal casting fails
      *
      * @example
      * $caster->cast('int', '123'); // returns 123
@@ -134,8 +134,8 @@ class Caster
      * Converts a casted value back to its original representation.
      * This is useful for serialization or when you need the raw value.
      *
-     * @param string $cast The cast type used for conversion
-     * @param mixed $value The casted value to restore
+     * @param string $cast  The cast type used for conversion
+     * @param mixed  $value The casted value to restore
      *
      * @return mixed The restored original value
      *
@@ -176,13 +176,13 @@ class Caster
      * Handles the core type casting logic for built-in PHP types and
      * common data transformations like JSON, dates, and collections.
      *
-     * @param string $cast The cast type (e.g., 'int', 'datetime', 'decimal:2')
-     * @param mixed $value The value to cast
+     * @param string $cast  The cast type (e.g., 'int', 'datetime', 'decimal:2')
+     * @param mixed  $value The value to cast
+     *
+     * @throws MathException            When decimal casting fails
+     * @throws InvalidArgumentException When JSON parsing fails
      *
      * @return mixed The casted value
-     *
-     * @throws MathException When decimal casting fails
-     * @throws InvalidArgumentException When JSON parsing fails
      *
      * @internal This method is used internally by the cast() method
      */
@@ -210,6 +210,7 @@ class Caster
      * Convert value to float with special handling for infinity and NaN.
      *
      * @param mixed $value The value to convert to float
+     *
      * @return float The converted float value
      */
     protected function fromFloat(mixed $value): float
@@ -225,8 +226,9 @@ class Caster
     /**
      * Convert value from JSON string or array-like object.
      *
-     * @param mixed $value The value to convert from JSON
-     * @param bool $asObject Whether to return as object instead of array
+     * @param mixed $value    The value to convert from JSON
+     * @param bool  $asObject Whether to return as object instead of array
+     *
      * @return mixed The decoded JSON value
      */
     protected function fromJson(mixed $value, bool $asObject = false): mixed
@@ -245,11 +247,12 @@ class Caster
     /**
      * Convert value to decimal string with specified precision.
      *
-     * @param mixed $value The value to convert to decimal
+     * @param mixed      $value    The value to convert to decimal
      * @param int|string $decimals Number of decimal places
      *
-     * @return string The decimal string representation
      * @throws MathException When conversion fails
+     *
+     * @return string The decimal string representation
      */
     protected function asDecimal(mixed $value, int|string $decimals): string
     {
@@ -264,6 +267,7 @@ class Caster
      * Convert value to Carbon date instance (start of day).
      *
      * @param mixed $value The value to convert to date
+     *
      * @return Carbon The Carbon date instance
      */
     protected function asDate(mixed $value): Carbon
@@ -279,8 +283,9 @@ class Caster
      *
      * @param mixed $value The value to convert to datetime
      *
-     * @return Carbon The Carbon datetime instance
      * @throws InvalidArgumentException When the value cannot be parsed as a date
+     *
+     * @return Carbon The Carbon datetime instance
      */
     protected function asDateTime(mixed $value): Carbon
     {
@@ -312,6 +317,7 @@ class Caster
      * Serialize date to string format.
      *
      * @param DateTimeInterface $date The date to serialize
+     *
      * @return string The formatted date string
      */
     protected function serializeDate(DateTimeInterface $date): string
@@ -325,6 +331,7 @@ class Caster
      * Serialize datetime to string format.
      *
      * @param DateTimeInterface $date The datetime to serialize
+     *
      * @return string The formatted datetime string
      */
     protected function serializeDatetime(DateTimeInterface $date): string
@@ -338,6 +345,7 @@ class Caster
      * Convert value to Unix timestamp.
      *
      * @param mixed $value The value to convert to timestamp
+     *
      * @return int The Unix timestamp
      */
     protected function asTimestamp(mixed $value): int
@@ -351,6 +359,7 @@ class Caster
      * Extracts the base type from cast definitions that may include parameters.
      *
      * @param string $cast The cast definition
+     *
      * @return string The base cast type
      */
     protected function getCastType(string $cast): string
@@ -378,6 +387,7 @@ class Caster
      * Check if cast type is for date conversion.
      *
      * @param string $cast The cast type to check
+     *
      * @return bool True if it's a date cast
      */
     protected function isDateCast(string $cast): bool
@@ -389,6 +399,7 @@ class Caster
      * Check if cast type is for datetime conversion.
      *
      * @param string $cast The cast type to check
+     *
      * @return bool True if it's a datetime cast
      */
     protected function isDatetimeCast(string $cast): bool
@@ -400,6 +411,7 @@ class Caster
      * Check if cast type is for custom datetime format.
      *
      * @param string $cast The cast type to check
+     *
      * @return bool True if it's a custom datetime cast
      */
     protected function isCustomDateTimeCast(string $cast): bool
@@ -411,6 +423,7 @@ class Caster
      * Check if cast type is for immutable custom datetime format.
      *
      * @param string $cast The cast type to check
+     *
      * @return bool True if it's an immutable custom datetime cast
      */
     protected function isImmutableCustomDateTimeCast(string $cast): bool
@@ -422,6 +435,7 @@ class Caster
      * Check if cast type is for decimal conversion.
      *
      * @param string $cast The cast type to check
+     *
      * @return bool True if it's a decimal cast
      */
     protected function isDecimalCast(string $cast): bool
@@ -433,6 +447,7 @@ class Caster
      * Check if value matches standard date format (Y-m-d).
      *
      * @param mixed $value The value to check
+     *
      * @return bool True if matches standard date format
      */
     protected function isStandardDateFormat(mixed $value): bool
@@ -446,6 +461,7 @@ class Caster
      * Extracts the class name from cast definitions that may include parameters.
      *
      * @param string $class The caster class definition
+     *
      * @return string The class name
      */
     protected function parseCasterClass(string $class): string
@@ -457,6 +473,7 @@ class Caster
      * Check if cast type uses a custom caster class.
      *
      * @param string $cast The cast type to check
+     *
      * @return bool True if it's a class-based cast
      */
     protected function isClassCastable(string $cast): bool
@@ -478,6 +495,7 @@ class Caster
      * Resolve caster class instance from cast definition.
      *
      * @param string $cast The cast definition
+     *
      * @return mixed The caster instance
      */
     protected function resolveCasterClass(string $cast): mixed
@@ -514,8 +532,9 @@ class Caster
     /**
      * Get casted value using custom caster.
      *
-     * @param string $cast The cast definition
-     * @param mixed $value The value to cast
+     * @param string $cast  The cast definition
+     * @param mixed  $value The value to cast
+     *
      * @return mixed The casted value
      */
     protected function getCastableValue(string $cast, mixed $value): mixed
@@ -530,8 +549,9 @@ class Caster
     /**
      * Convert casted value back to original using custom caster.
      *
-     * @param string $cast The cast definition
-     * @param mixed $value The casted value
+     * @param string $cast  The cast definition
+     * @param mixed  $value The casted value
+     *
      * @return mixed The original value
      */
     protected function fromCastableValue(string $cast, mixed $value): mixed
@@ -547,6 +567,7 @@ class Caster
      * Check if cast type is for enum conversion.
      *
      * @param string $cast The cast type to check
+     *
      * @return bool True if it's an enum cast
      */
     protected function isEnumCastable(string $cast): bool
@@ -564,6 +585,7 @@ class Caster
      * Get the value from an enum instance.
      *
      * @param mixed $value The enum instance or value
+     *
      * @return mixed The enum value
      */
     protected function getEnumValue(mixed $value): mixed
@@ -583,8 +605,9 @@ class Caster
      * @param string $enumClass The enum class name
      * @param mixed  $value     The value to convert to enum case
      *
-     * @return mixed The enum case
      * @throws ReflectionException
+     *
+     * @return mixed The enum case
      */
     protected function getEnumCase(string $enumClass, mixed $value): mixed
     {
@@ -606,6 +629,6 @@ class Caster
             return $enumClass::from($value);
         }
 
-        return constant($enumClass . '::' . $value);
+        return constant($enumClass.'::'.$value);
     }
 }
