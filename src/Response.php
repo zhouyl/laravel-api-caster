@@ -16,13 +16,6 @@ use Serializable;
  * This class extends PSR-7 Response to provide convenient methods for
  * accessing structured API response data including code, message, data,
  * and meta information following common API response patterns.
- *
- * @package Mellivora\Http\Api
- * @author zhouyl <81438567@qq.com>
- * @version 2.0.0
- * @since 1.0.0
- *
- * @implements ArrayAccess<string, mixed>
  */
 class Response extends HttpResponse implements ArrayAccess, Serializable
 {

@@ -14,6 +14,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use IteratorAggregate;
 use JsonSerializable;
 use Serializable;
@@ -25,23 +26,6 @@ use UnexpectedValueException;
  *
  * This class provides a Laravel Eloquent-like interface for working with API response data.
  * It supports type casting, field mapping, data transformation, and various array-like operations.
- *
- * @package Mellivora\Http\Api
- * @author zhouyl <81438567@qq.com>
- * @version 2.0.0
- * @since 1.0.0
- *
- * @implements ArrayAccess<string, mixed>
- * @implements IteratorAggregate<string, mixed>
- *
- * @property-read array<string, mixed> $attributes The converted attributes
- * @property-read array<string, mixed> $originAttributes The original attributes
- * @property-read array<string, mixed> $meta The meta information
- *
- * @method mixed __get(string $name) Get an attribute value
- * @method void __set(string $name, mixed $value) Set an attribute value
- * @method bool __isset(string $name) Check if an attribute exists
- * @method void __unset(string $name) Unset an attribute
  *
  * @template TKey of array-key
  * @template TValue
@@ -194,13 +178,6 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     protected ?array $bootedCasts = null;
 
     /**
-     * Cache for computed attributes.
-     *
-     * @var array
-     */
-    protected array $computedCache = [];
-
-    /**
      * Cache for includes/excludes checks.
      *
      * @var array
@@ -284,7 +261,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      * @param iterable<string, mixed> $attributes The entity attributes
      * @param array<string, mixed> $meta Optional meta information
      *
-     * @throws \InvalidArgumentException When input data exceeds safety limits
+     * @throws InvalidArgumentException When input data exceeds safety limits
      *
      * @example
      * $entity = new Entity(['id' => 1, 'name' => 'John']);
@@ -402,7 +379,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 初始化方法，继承类可通过实例该方法，完成对数据的初始化处理.
+     * Initialize entity data, can be overridden in subclasses.
      *
      * @param array $attributes
      *
@@ -414,7 +391,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 复制一个当前对象
+     * Create a copy of the entity.
      *
      * @return static
      */
@@ -444,7 +421,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 遗弃掉某些字段数据(当前实例).
+     * Forget attributes.
      *
      * @param array $keys
      *
@@ -460,7 +437,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 使用指定的字段，重新创建一个新的 Entity 实例.
+     * Only keep specified attributes.
      *
      * @param array $keys
      *
@@ -632,7 +609,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 移除属性.
+     * Remove attribute.
      *
      * @param string $key
      *
@@ -646,6 +623,8 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
+     * Convert entity value.
+     *
      * @param mixed $value
      *
      * @return mixed
@@ -749,7 +728,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     {
         $this->attributes = [];
 
-        // 合并需要加载的数据
+        // Merge data that needs to be loaded
         foreach ($this->originAttributes as $key => $value) {
             if (isset($this->renames[$key])) {
                 $key = $this->renames[$key];
@@ -831,7 +810,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 合并字段映射后的数据.
+     * Merge mapped data.
      *
      * @param array $attributes
      *
@@ -866,7 +845,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * 合并追加后的数据.
+     * Merge appended data.
      *
      * @param array $attributes
      *
@@ -947,23 +926,23 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      * @param iterable $attributes
      * @param array    $meta
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function validateInput(iterable $attributes, array $meta): void
     {
         // Check recursion depth to prevent stack overflow
         if ($this->getRecursionDepth($attributes) > 100) {
-            throw new \InvalidArgumentException('Input data exceeds maximum recursion depth');
+            throw new InvalidArgumentException('Input data exceeds maximum recursion depth');
         }
 
         // Check array size to prevent memory exhaustion
         if ($this->getArraySize($attributes) > 10000) {
-            throw new \InvalidArgumentException('Input data exceeds maximum size limit');
+            throw new InvalidArgumentException('Input data exceeds maximum size limit');
         }
 
         // Validate meta data
         if (count($meta) > 1000) {
-            throw new \InvalidArgumentException('Meta data exceeds maximum size limit');
+            throw new InvalidArgumentException('Meta data exceeds maximum size limit');
         }
     }
 

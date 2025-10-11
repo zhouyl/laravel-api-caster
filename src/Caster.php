@@ -24,11 +24,6 @@ use Mellivora\Http\Api\Contracts\Castable;
  * This class handles the conversion of raw data values to their appropriate
  * types based on cast definitions. It supports built-in PHP types, custom
  * casters, and various specialized conversions like dates and decimals.
- *
- * @package Mellivora\Http\Api
- * @author zhouyl <81438567@qq.com>
- * @version 2.0.0
- * @since 1.0.0
  */
 class Caster
 {
