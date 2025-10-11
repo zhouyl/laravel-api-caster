@@ -52,13 +52,6 @@
   - 实时错误检测
   - 类型安全的重构支持
 
-### 开发工具
-- **新增配置文件**:
-  - `.phpstorm.meta.php` - PHPStorm 类型推断
-  - `psalm.xml` - Psalm 静态分析
-  - `.vscode/` - VS Code 开发环境配置
-  - `src/Support/EntityStubs.php` - IDE 类型提示
-
 ### 质量指标
 - **测试**: 43 个测试，407 个断言
 - **覆盖率**: 88.22% 总体覆盖率

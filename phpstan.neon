@@ -2,8 +2,6 @@ parameters:
     level: 6
     paths:
         - src
-    excludePaths:
-        - src/Support/EntityStubs.php
     treatPhpDocTypesAsCertain: false
     ignoreErrors:
         # ArrayAccess interface compatibility
