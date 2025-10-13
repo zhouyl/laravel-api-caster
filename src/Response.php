@@ -98,7 +98,13 @@ class Response extends HttpResponse implements ArrayAccess, Serializable
      */
     public function message(): string
     {
-        return (string) $this->offsetGet('message');
+        $message = $this->offsetGet('message') ?? $this->offsetGet('msg');
+
+        if (!$message && $this->failed()) {
+            $message = $this->toException()->getMessage();
+        }
+
+        return $message;
     }
 
     /**
