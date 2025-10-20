@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector;
+use Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector;
+use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
 
@@ -24,8 +27,8 @@ return static function (RectorConfig $rectorConfig): void {
     // Skip some rules that might be too aggressive
     $rectorConfig->skip([
         // Skip rules that might break compatibility
-        \Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class,
-        \Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector::class,
-        \Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector::class,
+        ClassPropertyAssignToConstructorPromotionRector::class,
+        RemoveUselessParamTagRector::class,
+        RemoveUselessReturnTagRector::class,
     ]);
 };

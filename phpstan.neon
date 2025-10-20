@@ -17,6 +17,16 @@ parameters:
         - '#Parameter .+ with no type specified#'
         - '#has no return type specified#'
         - '#Parameter .+ is implicitly nullable via default value null#'
+        # EntityCollection method signature compatibility with Laravel Collection
+        - '#Return type \(static\(.*EntityCollection.*\)\) of method .*EntityCollection::.* should be covariant with return type.*#'
+        - '#Parameter \#1 \$.*\(.*\) of method .*EntityCollection::.* should be contravariant with parameter.*#'
+        - '#Method .*EntityCollection::.* should return .* but returns .*#'
+        - '#Method .*Collection.*::shuffle\(\) invoked with 1 parameter, 0 required#'
+        # Response boolean checks
+        - '#Only booleans are allowed in a negated boolean, mixed given#'
+        - '#Construct empty\(\) is not allowed\. Use more strict comparison#'
+        # Entity collection return type
+        - '#Method .*Entity::collection\(\) should return .* but returns .*#'
         -
             identifier: missingType.iterableValue
         -

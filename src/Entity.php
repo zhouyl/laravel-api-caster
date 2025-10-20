@@ -194,7 +194,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      *
      * @param Response $response
      *
-     * @return Collection
+     * @return EntityCollection
      */
     public static function collectionResponse(Response $response): Collection
     {
@@ -221,25 +221,33 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     }
 
     /**
-     * Convert data to Collection of Entity instances.
+     * Convert data to EntityCollection of Entity instances.
      *
-     * Creates a Laravel Collection containing Entity instances from an array
+     * Creates a Laravel EntityCollection containing Entity instances from an array
      * of data items. Each item will be converted to an entity of the calling class.
      *
      * @param iterable<mixed>      $items Array of data items to convert
      * @param array<string, mixed> $meta  Optional meta information for all entities
      *
-     * @return Collection<int, static> Collection of entity instances
+     * @return EntityCollection<int, static> EntityCollection of entity instances
      *
      * @example
      * $users = UserEntity::collection([
      *     ['id' => 1, 'name' => 'John'],
      *     ['id' => 2, 'name' => 'Jane']
-     * ]);
+     * ], ['total_items' => 123, 'page' => 1, 'per_page' => 10]);
+     *
+     * // Access collection meta
+     * $totalItems = $users->meta('total_items'); // 123
+     * $page = $users->meta('page'); // 1
+     *
+     * // Access individual entity meta (same as collection meta)
+     * $firstUser = $users->first();
+     * $userMeta = $firstUser->meta(); // Same meta as collection
      */
-    public static function collection(iterable $items, array $meta = []): Collection
+    public static function collection(iterable $items, array $meta = []): EntityCollection
     {
-        $collection = new Collection();
+        $entities = [];
 
         foreach ($items as $item) {
             if (is_array($item)) {
@@ -250,10 +258,11 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
                 throw new UnexpectedValueException('Expected instance of '.static::class);
             }
 
-            $collection->push($item);
+            $entities[] = $item;
         }
 
-        return $collection;
+        // Pass meta to EntityCollection constructor
+        return new EntityCollection($entities, $meta);
     }
 
     /**
@@ -645,6 +654,17 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
             return $value->format('Y-m-d H:i:s');
         }
 
+        if ($value instanceof EntityCollection) {
+            // Handle EntityCollection specially to avoid validation issues
+            $data = [];
+
+            foreach ($value as $entity) {
+                $data[] = $entity->toArray();
+            }
+
+            return $data;
+        }
+
         if ($value instanceof Arrayable) {
             return $value->toArray();
         }
@@ -793,7 +813,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
     /**
      * Create a collection of mapped entity instances.
      *
-     * Creates a Collection containing instances of the specified entity class,
+     * Creates a EntityCollection containing instances of the specified entity class,
      * one for each item in the attributes iterable.
      *
      * @param class-string<Entity> $class      The entity class name
@@ -801,7 +821,7 @@ class Entity implements Arrayable, ArrayAccess, Countable, IteratorAggregate, Js
      *
      * @throws UnexpectedValueException When the class is not a valid Entity subclass
      *
-     * @return Collection<int, Entity> Collection of entity instances
+     * @return EntityCollection<int, Entity> Collection of entity instances
      */
     protected function mappingCollection(string $class, iterable $attributes): Collection
     {

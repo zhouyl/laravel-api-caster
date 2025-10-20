@@ -10,9 +10,11 @@ use GuzzleHttp\Psr7\Response as PsrResponse;
 use Illuminate\Http\Client\Response as HttpResponse;
 use Illuminate\Support\Collection;
 use Mellivora\Http\Api\Entity;
+use Mellivora\Http\Api\EntityCollection;
 use Mellivora\Http\Api\Response;
 use Mellivora\Http\Api\Tests\MockLib\Message;
 use Mellivora\Http\Api\Tests\MockLib\StatusEnum;
+use PHPUnit\Framework\TestCase;
 use UnexpectedValueException;
 
 class EntityTest extends TestCase
@@ -140,12 +142,194 @@ class EntityTest extends TestCase
 
         $this->assertInstanceOf(Collection::class, $collection);
 
+        // Test collection meta access
+        $this->assertEquals($body['meta'], $collection->meta());
+        $this->assertEquals($body['meta']['locale'], $collection->meta('locale'));
+        $this->assertTrue($collection->hasMeta('locale'));
+        $this->assertFalse($collection->hasMeta('nonexistent'));
+
         foreach ($collection as $entity) {
             $this->assertInstanceOf(Entity::class, $entity);
             $this->assertEquals($body['meta'], $entity->meta());
             $this->assertEquals($body['meta']['locale'], $entity->meta('locale'));
             $this->assertFalse($entity->isEmpty());
         }
+    }
+
+    public function testCollectionWithPaginationMeta(): void
+    {
+        $items = [
+            ['id' => 1, 'name' => 'User 1'],
+            ['id' => 2, 'name' => 'User 2'],
+        ];
+
+        $meta = [
+            'total_items' => 123,
+            'page' => 2,
+            'per_page' => 10,
+            'total_pages' => 13,
+            'has_more' => true,
+        ];
+
+        $collection = Entity::collection($items, $meta);
+
+        // Test meta access
+        $this->assertEquals($meta, $collection->meta());
+        $this->assertEquals(123, $collection->meta('total_items'));
+        $this->assertEquals(2, $collection->meta('page'));
+        $this->assertEquals(10, $collection->meta('per_page'));
+
+        // Test pagination helpers
+        $this->assertEquals(123, $collection->total());
+        $this->assertEquals(2, $collection->currentPage());
+        $this->assertEquals(10, $collection->perPage());
+        $this->assertTrue($collection->hasMorePages());
+
+        $pagination = $collection->pagination();
+        $this->assertEquals(123, $pagination['total']);
+        $this->assertEquals(2, $pagination['page']);
+        $this->assertEquals(10, $pagination['per_page']);
+        $this->assertEquals(13, $pagination['total_pages']);
+        $this->assertTrue($pagination['has_more']);
+
+        // Test array with meta
+        $arrayWithMeta = $collection->toArrayWithMeta();
+        $this->assertArrayHasKey('data', $arrayWithMeta);
+        $this->assertArrayHasKey('meta', $arrayWithMeta);
+        $this->assertEquals($meta, $arrayWithMeta['meta']);
+        $this->assertCount(2, $arrayWithMeta['data']);
+
+        // Test JSON with meta
+        $jsonWithMeta = $collection->toJsonWithMeta();
+        $decoded = json_decode($jsonWithMeta, true);
+        $this->assertEquals($arrayWithMeta, $decoded);
+    }
+
+    public function testEntityCollectionTypeSafety(): void
+    {
+        $items = [
+            ['id' => 1, 'name' => 'User 1'],
+            ['id' => 2, 'name' => 'User 2'],
+        ];
+
+        $collection = Entity::collection($items);
+
+        // Test that all modification methods enforce type safety
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Expected instance of');
+
+        // Test put method
+        $collection->put('invalid', ['not' => 'entity']);
+    }
+
+    public function testEntityCollectionPutTypeSafety(): void
+    {
+        $collection = Entity::collection([['id' => 1, 'name' => 'User 1']]);
+
+        $this->expectException(UnexpectedValueException::class);
+        $collection->put('key', ['invalid' => 'data']);
+    }
+
+    public function testEntityCollectionPrependTypeSafety(): void
+    {
+        $collection = Entity::collection([['id' => 1, 'name' => 'User 1']]);
+
+        $this->expectException(UnexpectedValueException::class);
+        $collection->prepend(['invalid' => 'data']);
+    }
+
+    public function testEntityCollectionMergeTypeSafety(): void
+    {
+        $collection = Entity::collection([['id' => 1, 'name' => 'User 1']]);
+
+        $this->expectException(UnexpectedValueException::class);
+        $collection->merge([['invalid' => 'data']]);
+    }
+
+    public function testEntityCollectionConcatTypeSafety(): void
+    {
+        $collection = Entity::collection([['id' => 1, 'name' => 'User 1']]);
+
+        $this->expectException(UnexpectedValueException::class);
+        $collection->concat([['invalid' => 'data']]);
+    }
+
+    public function testEntityCollectionReplaceTypeSafety(): void
+    {
+        $collection = Entity::collection([['id' => 1, 'name' => 'User 1']]);
+
+        $this->expectException(UnexpectedValueException::class);
+        $collection->replace([['invalid' => 'data']]);
+    }
+
+    public function testEntityCollectionSpliceTypeSafety(): void
+    {
+        $collection = Entity::collection([['id' => 1, 'name' => 'User 1']]);
+
+        $this->expectException(UnexpectedValueException::class);
+        $collection->splice(0, 1, [['invalid' => 'data']]);
+    }
+
+    public function testEntityCollectionOffsetSetTypeSafety(): void
+    {
+        $collection = Entity::collection([['id' => 1, 'name' => 'User 1']]);
+
+        $this->expectException(UnexpectedValueException::class);
+        $collection[0] = ['invalid' => 'data'];
+    }
+
+    public function testEntityCollectionMapTypeSafety(): void
+    {
+        $collection = Entity::collection([['id' => 1, 'name' => 'User 1']]);
+
+        $this->expectException(UnexpectedValueException::class);
+        $collection->map(fn ($entity) => ['invalid' => 'data']);
+    }
+
+    public function testEntityCollectionValidOperations(): void
+    {
+        $items = [
+            ['id' => 1, 'name' => 'User 1'],
+            ['id' => 2, 'name' => 'User 2'],
+        ];
+
+        // Test valid put
+        $collection1 = Entity::collection($items, ['total' => 10]);
+        $newEntity = new Entity(['id' => 3, 'name' => 'User 3']);
+        $newCollection = $collection1->put('new', $newEntity);
+        $this->assertInstanceOf(EntityCollection::class, $newCollection);
+        $this->assertEquals(3, $newCollection->count());
+
+        // Test valid prepend
+        $collection2 = Entity::collection($items, ['total' => 10]);
+        $prependEntity = new Entity(['id' => 0, 'name' => 'User 0']);
+        $prependedCollection = $collection2->prepend($prependEntity);
+        $this->assertInstanceOf(EntityCollection::class, $prependedCollection);
+        $this->assertEquals(3, $prependedCollection->count());
+
+        // Test valid merge
+        $collection3 = Entity::collection($items, ['total' => 10]);
+        $mergeEntities = [new Entity(['id' => 4, 'name' => 'User 4'])];
+        $mergedCollection = $collection3->merge($mergeEntities);
+        $this->assertInstanceOf(EntityCollection::class, $mergedCollection);
+        $this->assertEquals(3, $mergedCollection->count());
+
+        // Test that meta is preserved in new collections
+        $collection4 = Entity::collection($items, ['total' => 10]);
+        $filteredCollection = $collection4->filter(fn ($entity) => $entity->id > 1);
+        $this->assertInstanceOf(EntityCollection::class, $filteredCollection);
+        $this->assertEquals(10, $filteredCollection->meta('total'));
+        $this->assertEquals(1, $filteredCollection->count());
+
+        // Test map with valid Entity return
+        $collection5 = Entity::collection($items, ['total' => 10]);
+        $mappedCollection = $collection5->map(fn ($entity) => new Entity([
+            'id' => $entity->id,
+            'name' => strtoupper($entity->name),
+        ]));
+        $this->assertInstanceOf(EntityCollection::class, $mappedCollection);
+        $this->assertEquals(10, $mappedCollection->meta('total'));
+        $this->assertEquals('USER 1', $mappedCollection->first()->name);
     }
 
     public function testCollectionException(): void

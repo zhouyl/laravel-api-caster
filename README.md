@@ -127,7 +127,7 @@ $product = new ProductEntity([
 ]);
 
 $product->category;        // CategoryEntity instance
-$product->tags;            // Collection of TagEntity instances
+$product->tags;            // EntityCollection of TagEntity instances
 $product->tags->first();   // TagEntity instance
 ```
 
