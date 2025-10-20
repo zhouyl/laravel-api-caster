@@ -298,19 +298,6 @@ composer rector-fix
 **Issue**: Memory issues with large datasets
 **Solution**: Process data in chunks using collections
 
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
-
-## Credits
-
-- [zhouyl](https://github.com/zhouyl)
-- [All Contributors](../../contributors)
-
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.

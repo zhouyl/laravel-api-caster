@@ -300,19 +300,6 @@ composer rector-fix
 **问题**：大数据集的内存问题
 **解决方案**：使用集合分块处理数据
 
-## 贡献
-
-请查看 [CONTRIBUTING](CONTRIBUTING.md) 了解详情。
-
-## 安全漏洞
-
-请查看 [我们的安全政策](../../security/policy) 了解如何报告安全漏洞。
-
-## 致谢
-
-- [zhouyl](https://github.com/zhouyl)
-- [所有贡献者](../../contributors)
-
 ## 许可证
 
 MIT 许可证 (MIT)。请查看 [许可证文件](LICENSE.md) 了解更多信息。
