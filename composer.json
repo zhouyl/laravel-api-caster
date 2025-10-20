@@ -1,7 +1,7 @@
 {
   "name": "mellivora/laravel-api-caster",
   "type": "library",
-  "description": "Convert API response results to Entity objects like Laravel Eloquent. Supports PHP 8.3+ and Laravel 10+.",
+  "description": "Convert API response results to Entity objects like Laravel Eloquent. Enhanced with type-safe collections and meta support. Supports PHP 8.3+ and Laravel 10+.",
   "homepage": "https://github.com/zhouyl/laravel-api-caster",
   "license": "MIT",
   "authors": [

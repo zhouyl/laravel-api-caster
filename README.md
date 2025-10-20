@@ -5,7 +5,7 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/workflow/status/zhouyl/laravel-api-caster/Fix%20PHP%20code%20style%20issues?label=code%20style)](https://github.com/zhouyl/laravel-api-caster/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/mellivora/laravel-api-caster.svg?style=flat-square)](https://packagist.org/packages/mellivora/laravel-api-caster)
 
-Convert API response results to Entity objects like Laravel Eloquent. This package provides a powerful and flexible way to transform API responses into structured, type-safe entities with support for casting, mapping, and data transformation.
+Convert API response results to Entity objects like Laravel Eloquent. This package provides a powerful and flexible way to transform API responses into structured, type-safe entities with support for casting, mapping, data transformation, and enhanced collection handling with metadata support.
 
 ## Features
 
@@ -14,7 +14,9 @@ Convert API response results to Entity objects like Laravel Eloquent. This packa
 - 🎯 **Custom Casters** - Create your own casting logic
 - 📦 **Entity Mapping** - Map nested data to Entity objects
 - 🔧 **Flexible Configuration** - Includes, excludes, renames, and more
-- 🧪 **Fully Tested** - Comprehensive test suite with 100% coverage
+- 📊 **Collection with Meta** - Enhanced collections with metadata support
+- 🛡️ **Type-Safe Collections** - Complete type validation for all collection operations
+- 🧪 **Fully Tested** - Comprehensive test suite with 84.79% coverage
 - ⚡ **High Performance** - Optimized for speed and memory efficiency
 - 🔒 **Type Safe** - Full PHP 8.3+ type declarations
 
