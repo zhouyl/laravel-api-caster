@@ -285,17 +285,20 @@ class EntityCollection extends BaseCollection
     /**
      * Get pagination information from meta.
      *
-     * @return array pagination info with keys: total, page, per_page, etc
+     * @return array pagination info with keys: total_items, total_pages, current_page, per_page
      */
     public function pagination(): array
     {
-        return [
-            'total' => $this->meta('total', $this->meta('total_items', 0)),
-            'page' => $this->meta('page', $this->meta('current_page', 1)),
-            'per_page' => $this->meta('per_page', $this->meta('page_size', 10)),
-            'total_pages' => $this->meta('total_pages', $this->meta('last_page', 1)),
-            'has_more' => $this->meta('has_more', false),
+        $pagination = [
+            'total_items' => $this->meta['total_items'] ?? $this->meta['total'] ?? 0,
+            'total_pages' => $this->meta['total_pages'] ?? $this->meta['last_page'] ?? 1,
+            'current_page' => $this->meta['current_page'] ?? $this->meta['page'] ?? $this->meta['page_no'] ?? 1,
+            'per_page' => $this->meta['per_page'] ?? $this->meta['page_size'] ?? $this->meta['limit'] ?? $this->meta['size'] ?? 10,
         ];
+
+        $pagination['has_more'] = $pagination['current_page'] < $pagination['total_pages'];
+
+        return $pagination;
     }
 
     /**
@@ -305,9 +308,17 @@ class EntityCollection extends BaseCollection
      */
     public function hasMorePages(): bool
     {
-        $pagination = $this->pagination();
+        return $this->pagination()['has_more'];
+    }
 
-        return $pagination['has_more'] || $pagination['page'] < $pagination['total_pages'];
+    /**
+     * Alias for totalItems().
+     *
+     * @return int
+     */
+    public function total(): int
+    {
+        return $this->totalItems();
     }
 
     /**
@@ -315,9 +326,19 @@ class EntityCollection extends BaseCollection
      *
      * @return int
      */
-    public function total(): int
+    public function totalItems(): int
     {
-        return (int) $this->pagination()['total'];
+        return (int) $this->pagination()['total_items'];
+    }
+
+    /**
+     * Get the total number of pages.
+     *
+     * @return int
+     */
+    public function totalPages(): int
+    {
+        return (int) $this->pagination()['total_pages'];
     }
 
     /**
@@ -327,7 +348,7 @@ class EntityCollection extends BaseCollection
      */
     public function currentPage(): int
     {
-        return (int) $this->pagination()['page'];
+        return (int) $this->pagination()['current_page'];
     }
 
     /**
